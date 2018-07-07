@@ -1,7 +1,7 @@
 {
-  "name": "express-typescript-starter",
+  "name": "release-center",
   "version": "0.1.0",
-  "description": "A starting point for Node.js express apps with TypeScript",
+  "description": "Release your app/binary in an organized way",
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/TypeScript-Node-Starter"
@@ -9,10 +9,15 @@
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
+    "docker-build": "docker build -t briansostudio/release-center:latest .",
+    "docker-watch": "docker-compose up -d && chokidar 'dist/**/*' 'views/**/*' -c 'yarn docker-dev-restart'",
+    "docker-stop": "docker-compose down",
+    "docker-dev-restart": "docker-compose build && docker-compose kill app && docker-compose up -d --no-deps app && docker-compose logs -f app",
     "start": "npm run serve",
     "build": "npm run build-sass && npm run build-ts && npm run tslint && npm run copy-static-assets",
     "serve": "node dist/server.js",
     "watch-node": "nodemon dist/server.js",
+    "watch-build": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript\" -c \"yellow.bold,cyan.bold\" \"npm run watch-sass\" \"npm run watch-ts\"",
     "watch": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"npm run watch-ts\" \"npm run watch-node\"",
     "test": "jest --forceExit --coverage --verbose",
     "watch-test": "npm run test -- --watchAll",
@@ -27,6 +32,7 @@
     "watch-debug": "concurrently -k -p \"[{name}]\" -n \"Sass,TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-sass\" \"npm run watch-ts\" \"npm run serve-debug\""
   },
   "dependencies": {
+    "@types/mongoose": "^5.2.0",
     "async": "^2.6.0",
     "bcrypt-nodejs": "^0.0.3",
     "bluebird": "^3.5.1",
@@ -58,7 +64,6 @@
     "@types/bluebird": "^3.5.20",
     "@types/body-parser": "^1.16.8",
     "@types/compression": "^0.0.35",
-    "@types/connect-mongo": "^0.0.35",
     "@types/dotenv": "^4.0.2",
     "@types/errorhandler": "^0.0.32",
     "@types/express": "^4.11.1",
@@ -68,7 +73,6 @@
     "@types/lodash": "^4.14.91",
     "@types/lusca": "^1.5.0",
     "@types/mongodb": "^3.0.5",
-    "@types/mongoose": "^4.7.34",
     "@types/morgan": "^1.7.35",
     "@types/node": "^9.4.6",
     "@types/nodemailer": "^4.3.4",
@@ -80,6 +84,7 @@
     "@types/supertest": "^2.0.4",
     "@types/winston": "^2.3.7",
     "chai": "^4.1.2",
+    "chokidar-cli": "^1.2.0",
     "concurrently": "^3.5.1",
     "jest": "^22.0.4",
     "node-sass": "^4.7.2",

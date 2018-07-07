@@ -1,0 +1,26 @@
+version: '3.3'
+
+# Docker Compose file for development use
+
+volumes:
+  mongo:
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo:/data/db
+
+#  app:
+#    build: .
+#    volumes:
+#      - ./storage:/usr/src/app/storage
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - NODE_ENV=development
+#      - PORT=3000
+#      - MONGODB_URI=mongodb://mongo/docker
+#      - MONGODB_URI_LOCAL=mongodb://mongo/docker
