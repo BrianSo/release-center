@@ -9,7 +9,7 @@ import fs from "fs-extra";
 import { STORAGE_DIRECTORY } from "../config/directory";
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (req: Request, file, cb) {
     const result = path.join(STORAGE_DIRECTORY, `upload/${req.params.id}`);
     fs.ensureDir(result, err => {
       if (err) {
