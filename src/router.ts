@@ -28,16 +28,13 @@ app.use(
 projectCMS.get("/", projectController.index);
 projectCMS.get("/create", projectController.getCreate);
 projectCMS.post("/create", projectController.postCreate);
-projectCMS.get("/{id}", projectController.index);
-projectCMS.get("/{id}", projectController.index);
-projectCMS.patch("/{id}", projectController.index);
-projectCMS.get("/{id}/releases", projectController.index);
-projectCMS.get("/{id}/releases/create", projectController.index);
-projectCMS.post("/{id}/releases/create", projectController.index);
-projectCMS.get("/{id}/releases/{version}/edit", projectController.index);
-projectCMS.patch("/{id}/releases/{version}", projectController.index);
+projectCMS.get("/:id", projectController.getCMSProject);
+projectCMS.post("/:id", projectController.index);
+projectCMS.get("/:id/releases/create", projectController.index);
+projectCMS.get("/:id/releases/:releaseId/edit", projectController.index);
+projectCMS.post("/:id/releases/:releaseId", projectController.index);
 
-app.get("/{id}", projectController.index);
+app.get("/:id", projectController.index);
 
 //
 // app.get("/logout", userController.logout);

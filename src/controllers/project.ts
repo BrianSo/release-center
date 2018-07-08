@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Project from "../models/Project";
-import "../models/Release";
+import Release from "../models/Release";
 import { asyncHandler } from "../util/asyncHandler";
 
 /**
@@ -54,4 +54,38 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
 
   req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
   res.redirect("/cms/projects");
+});
+
+
+const getProjectDetail = async (projectId: string) => {
+  const project = await Project.findOne({
+    id: projectId
+  }).populate("main")
+    .populate("android")
+    .populate("ios");
+
+  // populate releases
+  project.releases = {};
+  await Promise.all(project.tracks.map(async (track) => {
+    console.log({
+      projectId: projectId,
+      track: track
+    });
+
+    project.releases[track] = await Release.find({
+      projectId: projectId,
+      track: track
+    }).sort({ createdAt: -1 });
+  }));
+
+  return project;
+};
+
+export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
+  const project = await getProjectDetail(req.params.id);
+  console.log("releases: ", project.releases);
+  res.render("cms/projects/project", {
+    title: project.name,
+    project: project,
+  });
 });
