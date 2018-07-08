@@ -20,7 +20,7 @@ app.get("/", cmsController.indexRedirect);
 app.get("/cms", cmsController.index);
 app.get("/cms/login", cmsController.getLogin);
 app.post("/cms/login", cmsController.postLogin);
-app.post("/cms/logout", cmsController.index);
+app.get("/cms/logout", cmsController.logout);
 
 const projectCMS = Router();
 app.use(

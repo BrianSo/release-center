@@ -12,6 +12,7 @@ import passport from "passport";
 import expressValidator from "express-validator";
 import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
 import router from "./router";
+import {default as User, UserModel} from "./models/User";
 
 const MongoStore = mongo(session);
 
@@ -79,3 +80,21 @@ app.use(
 app.use(router);
 
 export default app;
+
+export const bootstrap = async () => {
+  await (async function createAdminUser() {
+    const existingUser: UserModel = await User.findOne({
+      email: process.env.ADMIN_EMAIL
+    });
+
+    if (!existingUser) {
+      console.log("Creating Admin Account");
+      User.create({
+        email: process.env.ADMIN_EMAIL,
+        password: process.env.ADMIN_PASSWORD
+      });
+    } else {
+      console.log("Admin already exists");
+    }
+  })();
+};

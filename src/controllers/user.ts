@@ -142,10 +142,6 @@ export let postUpdateProfile = (req: Request, res: Response, next: NextFunction)
   User.findById(req.user.id, (err, user: UserModel) => {
     if (err) { return next(err); }
     user.email = req.body.email || "";
-    user.profile.name = req.body.name || "";
-    user.profile.gender = req.body.gender || "";
-    user.profile.location = req.body.location || "";
-    user.profile.website = req.body.website || "";
     user.save((err: WriteError) => {
       if (err) {
         if (err.code === 11000) {
