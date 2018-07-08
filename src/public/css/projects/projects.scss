@@ -1,0 +1,28 @@
+
+.project-list{
+  .project-item{
+    .content{
+      display: flex;
+      .right-area{
+        flex: 1;
+      }
+      .my-row{
+        display: flex;
+        margin-left: 12px;
+      }
+      .icon{
+        height: 36px;
+        width: 36px;
+      }
+      .id{
+        width: 64px;
+        font-style: italic;
+        text-align: right;
+        margin-right: 8px;
+      }
+      .name{
+        font-weight: bold;
+      }
+    }
+  }
+}

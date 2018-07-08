@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import mongoose from "mongoose";
 
 export type ProjectModel = mongoose.Document & {
@@ -5,6 +6,8 @@ export type ProjectModel = mongoose.Document & {
   name: string,
   description: string,
   image: string
+
+  gravatar: (size: number) => string
 };
 
 
@@ -15,6 +18,16 @@ const schema = new mongoose.Schema({
   image: String,
 }, { timestamps: true });
 
-// export const Project: ProjectType = mongoose.model<ProjectType>("Project", userSchema);
-const Project = mongoose.model("Project", schema);
+/**
+ * Helper method for getting user's gravatar.
+ */
+schema.methods.gravatar = function (size: number = 200) {
+  if (this.image) {
+    return this.image;
+  }
+  const md5 = crypto.createHash("md5").update(this.name).digest("hex");
+  return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+};
+
+const Project = mongoose.model<ProjectModel>("Project", schema);
 export default Project;

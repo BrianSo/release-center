@@ -20,7 +20,7 @@ export type AuthToken = {
   kind: string
 };
 
-const userSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   passwordResetToken: String,
@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
 /**
  * Password hash middleware.
  */
-userSchema.pre("save", function save(next: Function) {
+schema.pre("save", function save(next: Function) {
   const user: UserModel = this as UserModel;
   if (!user.isModified("password")) { return next(); }
   bcrypt.genSalt(10, (err, salt) => {
@@ -51,15 +51,12 @@ const comparePassword: comparePasswordFunction = function (candidatePassword, cb
   });
 };
 
-userSchema.methods.comparePassword = comparePassword;
+schema.methods.comparePassword = comparePassword;
 
 /**
  * Helper method for getting user's gravatar.
  */
-userSchema.methods.gravatar = function (size: number) {
-  if (!size) {
-    size = 200;
-  }
+schema.methods.gravatar = function (size: number = 200) {
   if (!this.email) {
     return `https://gravatar.com/avatar/?s=${size}&d=retro`;
   }
@@ -67,6 +64,5 @@ userSchema.methods.gravatar = function (size: number) {
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
-// export const User: UserType = mongoose.model<UserType>('User', userSchema);
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<UserModel>("User", schema);
 export default User;

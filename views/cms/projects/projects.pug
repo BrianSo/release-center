@@ -1,5 +1,22 @@
 extends ../layout
 
 block content
-    .page-header
+    .page-header(style='display: flex; justify-content: space-between; align-items: center')
         h3 All Projects
+        a.col-sm-3.btn.btn-primary(href='/cms/projects/create')
+            i.fa.fa-plus
+            | Create Project
+    .project-list.list-group
+        each project in projects
+            a.project-item.list-group-item(href=`/cms/projects/${project.id}`)
+                .content
+                    img.icon(src=project.gravatar())
+                    .right-area
+                        .my-row
+                            .id
+                                =project.id
+                            .name
+                                =project.name
+                        .my-row
+                            .title Latest Version:
+

@@ -3,9 +3,6 @@ import { Router } from "express";
 // Controllers (route handlers)
 import * as projectController from "./controllers/project";
 import * as cmsController from "./controllers/cms";
-import * as userController from "./controllers/user";
-import * as apiController from "./controllers/api";
-import * as contactController from "./controllers/contact";
 
 
 // API keys and Passport configuration
@@ -29,8 +26,8 @@ app.use(
     projectCMS,
 );
 projectCMS.get("/", projectController.index);
-projectCMS.get("/create", projectController.index);
-projectCMS.post("/create", projectController.index);
+projectCMS.get("/create", projectController.getCreate);
+projectCMS.post("/create", projectController.postCreate);
 projectCMS.get("/{id}", projectController.index);
 projectCMS.get("/{id}", projectController.index);
 projectCMS.patch("/{id}", projectController.index);
