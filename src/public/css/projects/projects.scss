@@ -23,6 +23,17 @@
       .name{
         font-weight: bold;
       }
+      .latest{
+        .tag{
+          display: inline-block;
+          border-radius: 4px;
+          padding: 1px 4px;
+          margin-right: 4px;
+          &.ios{ background: #f1bdbd };
+          &.android{ background: #bcf1bb };
+          &.main{ background: #d1e2ff };
+        }
+      }
     }
   }
 }

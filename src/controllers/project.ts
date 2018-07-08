@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Project from "../models/Project";
+import "../models/Release";
 import { asyncHandler } from "../util/asyncHandler";
 
 /**
@@ -7,7 +8,12 @@ import { asyncHandler } from "../util/asyncHandler";
  * Projects home page
  */
 export let index = asyncHandler(async (req: Request, res: Response) => {
-  const projects = await Project.find();
+  const projects = await Project.find()
+    .populate("main")
+    .populate("android")
+    .populate("ios");
+
+  console.log(projects);
 
   res.render("cms/projects/projects", {
     title: "Projects",

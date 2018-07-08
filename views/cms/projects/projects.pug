@@ -18,5 +18,10 @@ block content
                             .name
                                 =project.name
                         .my-row
-                            .title Latest Version:
-
+                            .latest.title
+                                if project.main
+                                    span.main.tag main #{project.main.name}
+                                if project.ios
+                                    span.ios.tag ios #{project.ios.name}
+                                if project.android
+                                    span.android.tag android #{project.android.name}
