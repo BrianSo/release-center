@@ -35,7 +35,7 @@ projectCMS.post("/:id/releases/create", projectController.postCreateRelease);
 projectCMS.get("/:id/releases/:releaseId/edit", projectController.index);
 projectCMS.post("/:id/releases/:releaseId", projectController.index);
 
-app.get("/:id", projectController.index);
+app.get("/:id", projectController.getProject);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);
 
 //

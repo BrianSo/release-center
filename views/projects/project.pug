@@ -1,5 +1,51 @@
 extends ./layout
 
 block content
-  .page-header
-    h3 #{name} Releases
+  .page-header(style='display: flex; justify-content: space-between; align-items: center')
+    h3 #{project.name} Release
+  .project-list.list-group
+    .project-item.list-group-item
+      .content
+        img.icon(src=project.gravatar())
+        .right-area
+          .my-row
+            .id
+              =project.id
+            .name
+              =project.name
+          .my-row
+            .latest.title
+              if project.main
+                span.main.tag main #{project.main.name}
+              if project.ios
+                span.ios.tag ios #{project.ios.name}
+              if project.android
+                span.android.tag android #{project.android.name}
+  #releaseAccordion.accordion
+    each track in project.tracks
+      - const releases = project.releases[track];
+      - const latest = releases[0];
+      .card
+        .card-header(id=`heading-${track}`)
+          h5.mb-0
+            =track
+          if latest
+            .release.latest
+              span.version #{latest.name} (Latest)
+              span.date=latest.createdAt.toLocaleString()
+              a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                | Download
+          .space
+          .actions
+            button.btn(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
+              | Versions
+        .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
+          .card-body
+            .release-list.list-group
+              .release-item.list-group-item
+                each release in releases
+                  .release
+                    span.version=release.name
+                    span.date=release.createdAt.toLocaleString()
+                    a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                      | Download

@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-const getProject = async (projectId: string): Promise<ProjectModel> => {
+const retrieveProject = async (projectId: string): Promise<ProjectModel> => {
   return await Project.findOne({
     id: projectId
   }).populate("main")
@@ -88,7 +88,7 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
-  const project = await getProject(req.params.id);
+  const project = await retrieveProject(req.params.id);
   await project.populateReleases();
 
   res.render("cms/projects/project", {
@@ -97,8 +97,18 @@ export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+export let getProject = asyncHandler(async (req: Request, res: Response) => {
+  const project = await retrieveProject(req.params.id);
+  await project.populateReleases();
+
+  res.render("projects/project", {
+    title: project.name,
+    project: project,
+  });
+});
+
 export let getCreateRelease = asyncHandler(async (req: Request, res: Response) => {
-  const project = await getProject(req.params.id);
+  const project = await retrieveProject(req.params.id);
 
   res.render("cms/projects/createRelease", {
     title: project.name,
