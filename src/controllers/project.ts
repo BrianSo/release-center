@@ -127,6 +127,7 @@ export let postCreateRelease = compose([
       note: req.body.note,
       track: req.body.track,
       fileName: req.file.originalname,
+      mimetype: req.file.mimetype,
       path: req.file.path,
     });
 
@@ -141,3 +142,11 @@ export let postCreateRelease = compose([
     res.redirect(`/cms/projects/${req.params.id}`);
   })
 ]);
+
+export let downloadRelease = asyncHandler(async (req: Request, res: Response) => {
+  const release = await Release.findById(req.params.releaseId);
+
+  res.setHeader("Content-disposition", `attachment; filename=${release.fileName}`);
+  res.setHeader("Content-type", release.mimetype);
+  fs.createReadStream(release.path).pipe(res);
+});

@@ -6,6 +6,7 @@ export type ReleaseModel = mongoose.Document & {
   note: string,
   track: string,
   fileName: string,
+  mimetype: string,
   path: string,
 };
 
@@ -16,6 +17,7 @@ const schema = new mongoose.Schema({
   note: String,
   track: String,
   fileName: String,
+  mimetype: String,
   path: String,
 }, { timestamps: true });
 
