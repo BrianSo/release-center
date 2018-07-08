@@ -51,3 +51,12 @@ docker swarm init
 # Traefik label is added for traefik reverse-proxy. Remove it if you don't need it.
 docker stack deploy -c docker-compose.stack.yml
 ```
+
+### Roadmap
+
+1. Create Project and Release **<-- Current**
+2. Release Expiration
+3. Release Password Protection
+4. Public API for release version checking, release download
+5. Customizable Project Page (Online Pug Editor), Templates
+6. Email/Telegram Release Notification
