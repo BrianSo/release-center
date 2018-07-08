@@ -30,7 +30,8 @@ projectCMS.get("/create", projectController.getCreate);
 projectCMS.post("/create", projectController.postCreate);
 projectCMS.get("/:id", projectController.getCMSProject);
 projectCMS.post("/:id", projectController.index);
-projectCMS.get("/:id/releases/create", projectController.index);
+projectCMS.get("/:id/releases/create", projectController.getCreateRelease);
+projectCMS.post("/:id/releases/create", projectController.postCreateRelease);
 projectCMS.get("/:id/releases/:releaseId/edit", projectController.index);
 projectCMS.post("/:id/releases/:releaseId", projectController.index);
 

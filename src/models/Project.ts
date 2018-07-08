@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import mongoose from "mongoose";
-import { ReleaseModel } from "./Release";
+import { default as Release, ReleaseModel } from "./Release";
 
 export type ProjectModel = mongoose.Document & {
   id: string,
@@ -9,6 +9,10 @@ export type ProjectModel = mongoose.Document & {
   image: string,
 
   tracks: [string],
+
+  releases: {
+    [key: string]: ReleaseModel[],
+  },
 
   // latest version
   main: string | ReleaseModel,
@@ -19,7 +23,8 @@ export type ProjectModel = mongoose.Document & {
   // latest version of ios
   ios: string | ReleaseModel,
 
-  gravatar: (size: number) => string
+  gravatar: (size: number) => string,
+  populateReleases: () => Promise<ProjectModel>
 };
 
 
@@ -46,6 +51,25 @@ schema.methods.gravatar = function (size: number = 200) {
   }
   const md5 = crypto.createHash("md5").update(this.id).digest("hex");
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
+};
+
+schema.methods.populateReleases = async function(this: ProjectModel): Promise<ProjectModel>{
+
+  // populate releases
+  this.releases = {};
+  await Promise.all(this.tracks.map(async (track) => {
+    console.log({
+      projectId: this.id,
+      track: track
+    });
+
+    this.releases[track] = await Release.find({
+      projectId: this.id,
+      track: track
+    }).sort({ createdAt: -1 });
+  }));
+
+  return this;
 };
 
 const Project = mongoose.model<ProjectModel>("Project", schema);

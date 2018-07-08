@@ -1,7 +1,38 @@
 import { Request, Response } from "express";
-import Project from "../models/Project";
+import Project, { ProjectModel } from "../models/Project";
 import Release from "../models/Release";
 import { asyncHandler } from "../util/asyncHandler";
+import multer from "multer";
+import compose from "connect-compose";
+import path from "path";
+import fs from "fs-extra";
+import { STORAGE_DIRECTORY } from "../config/directory";
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const result = path.join(STORAGE_DIRECTORY, `upload/${req.params.id}`);
+    fs.ensureDir(result, err => {
+      if (err) {
+        cb(err);
+      } else {
+        cb(undefined, result);
+      }
+    });
+  },
+  filename: function (req, file, cb) {
+    cb(undefined, file.originalname + "-" + new Date().toISOString());
+  }
+});
+const upload = multer({ storage });
+
+
+const getProject = async (projectId: string): Promise<ProjectModel> => {
+  return await Project.findOne({
+    id: projectId
+  }).populate("main")
+    .populate("android")
+    .populate("ios");
+};
 
 /**
  * GET /cms/projects
@@ -56,36 +87,49 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
   res.redirect("/cms/projects");
 });
 
-
-const getProjectDetail = async (projectId: string) => {
-  const project = await Project.findOne({
-    id: projectId
-  }).populate("main")
-    .populate("android")
-    .populate("ios");
-
-  // populate releases
-  project.releases = {};
-  await Promise.all(project.tracks.map(async (track) => {
-    console.log({
-      projectId: projectId,
-      track: track
-    });
-
-    project.releases[track] = await Release.find({
-      projectId: projectId,
-      track: track
-    }).sort({ createdAt: -1 });
-  }));
-
-  return project;
-};
-
 export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
-  const project = await getProjectDetail(req.params.id);
-  console.log("releases: ", project.releases);
+  const project = await getProject(req.params.id);
+  await project.populateReleases();
+
   res.render("cms/projects/project", {
     title: project.name,
     project: project,
   });
 });
+
+export let getCreateRelease = asyncHandler(async (req: Request, res: Response) => {
+  const project = await getProject(req.params.id);
+
+  res.render("cms/projects/createRelease", {
+    title: project.name,
+    project: project,
+  });
+});
+
+export let postCreateRelease = compose([
+  upload.single("file"),
+  asyncHandler(async (req: Request, res: Response) => {
+    req.body.file = req.file;
+    req.assert("name", "Name is required").notEmpty();
+    req.assert("track", "Track is required").notEmpty();
+    req.assert("file", "File is required").exists();
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+      req.flash("errors", errors);
+      return res.redirect(`/cms/projects/${req.params.id}/releases/create`);
+    }
+
+    await Release.create({
+      projectId: req.params.id,
+      name: req.body.name,
+      note: req.body.note,
+      track: req.body.track,
+      fileName: req.file.originalname,
+      path: req.file.path,
+    });
+
+    res.redirect(`/cms/projects/${req.params.id}`);
+  })
+]);
