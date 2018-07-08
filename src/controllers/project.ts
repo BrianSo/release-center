@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
     const result = path.join(STORAGE_DIRECTORY, `upload/${req.params.id}`);
     fs.ensureDir(result, err => {
       if (err) {
-        cb(err);
+        cb(err, undefined);
       } else {
         cb(undefined, result);
       }
@@ -121,7 +121,7 @@ export let postCreateRelease = compose([
       return res.redirect(`/cms/projects/${req.params.id}/releases/create`);
     }
 
-    await Release.create({
+    const release = await Release.create({
       projectId: req.params.id,
       name: req.body.name,
       note: req.body.note,
@@ -129,6 +129,14 @@ export let postCreateRelease = compose([
       fileName: req.file.originalname,
       path: req.file.path,
     });
+
+    if (["android", "ios", "main"].indexOf(req.body.track) !== -1) {
+      await Project.update({
+        id: req.params.id
+      }, {
+        [req.body.track]: release._id
+      });
+    }
 
     res.redirect(`/cms/projects/${req.params.id}`);
   })
