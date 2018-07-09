@@ -1,45 +1,59 @@
 
 .project-list{
   .project-item{
-    .content{
-      display: flex;
-      .right-area{
-        flex: 1;
-      }
-      .my-row{
-        display: flex;
-        margin-left: 12px;
-      }
+    .project-detail{
       .icon{
         height: 36px;
         width: 36px;
       }
-      .id{
-        width: 64px;
-        font-style: italic;
-        text-align: right;
-        margin-right: 8px;
-      }
-      .name{
-        font-weight: bold;
-      }
-      .latest{
-        .tag{
-          display: inline-block;
-          border-radius: 4px;
-          padding: 1px 4px;
-          margin-right: 4px;
-          background: #ccc;
-          &.ios{ background: #f1bdbd };
-          &.android{ background: #bcf1bb };
-          &.main{ background: #d1e2ff };
-        }
+      .right-area {
+        margin-left: 8px;
       }
     }
   }
 }
 
+.project-detail{
+  display: flex;
+  .right-area{
+    flex: 1;
+    margin-left: 40px;
+  }
+  .my-row{
+    display: flex;
+    margin-left: 12px;
+  }
+  .description{
+    margin-top: 8px;
+  }
+  .icon{
+    height: 96px;
+    width: 96px;
+  }
+  .id{
+    width: 64px;
+    font-style: italic;
+    margin-right: 8px;
+  }
+  .name{
+    font-weight: bold;
+  }
+  .latest{
+    .tag{
+      display: inline-block;
+      border-radius: 4px;
+      padding: 1px 4px;
+      margin-right: 4px;
+      background: #ccc;
+      &.ios{ background: #f1bdbd };
+      &.android{ background: #bcf1bb };
+      &.main{ background: #d1e2ff };
+    }
+  }
+}
+
 #releaseAccordion{
+  margin-top: 24px;
   .card {
     margin-bottom: 4px;
 

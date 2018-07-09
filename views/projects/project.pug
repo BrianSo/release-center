@@ -3,24 +3,25 @@ extends ./layout
 block content
   .page-header(style='display: flex; justify-content: space-between; align-items: center')
     h3 #{project.name} Release
-  .project-list.list-group
-    .project-item.list-group-item
-      .content
-        img.icon(src=project.gravatar())
-        .right-area
-          .my-row
-            .id
-              =project.id
-            .name
-              =project.name
-          .my-row
-            .latest.title
-              if project.main
-                span.main.tag main #{project.main.name}
-              if project.ios
-                span.ios.tag ios #{project.ios.name}
-              if project.android
-                span.android.tag android #{project.android.name}
+  .project-detail
+    img.icon(src=project.gravatar())
+    .right-area
+      .my-row
+        .id
+          =project.id
+        .name
+          =project.name
+      .my-row
+        .latest.title
+          if project.main
+            span.main.tag main #{project.main.name}
+          if project.ios
+            span.ios.tag ios #{project.ios.name}
+          if project.android
+            span.android.tag android #{project.android.name}
+      .my-row
+        .description
+          =project.description
   #releaseAccordion.accordion
     each track in project.tracks
       - const releases = project.releases[track];
@@ -31,13 +32,13 @@ block content
             h5.mb-0
               =track
             .release.latest
-              span.version #{latest.name} (Latest)
-              span.date=latest.createdAt.toLocaleString()
-              a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
-                | Download
-            .actions
-              button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
-                | Old Versions
+              span(data-toggle='tooltip' data-placement='top' title=latest.note)
+                span.version #{latest.name} (Latest)
+                span.date=latest.createdAt.toLocaleString()
+                a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                  | Download
+                button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
+                  | Old Versions
 
           .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
             .card-body
@@ -45,7 +46,12 @@ block content
                 .release-item.list-group-item
                   each release in releases
                     .release
-                      span.version=release.name
-                      span.date=release.createdAt.toLocaleString()
-                      a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
-                        | Download
+                      span(data-toggle='tooltip' data-placement='top' title=release.note)
+                        span.version=release.name
+                        span.date=release.createdAt.toLocaleString()
+                        a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
+                          | Download
+  script.
+    document.addEventListener("DOMContentLoaded", function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    });
