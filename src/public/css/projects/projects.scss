@@ -29,6 +29,7 @@
           border-radius: 4px;
           padding: 1px 4px;
           margin-right: 4px;
+          background: #ccc;
           &.ios{ background: #f1bdbd };
           &.android{ background: #bcf1bb };
           &.main{ background: #d1e2ff };
@@ -63,6 +64,29 @@
     }
     .space{
       flex: 1;
+    }
+  }
+}
+
+#track-container {
+  display: inline-block;
+  margin-left: 8px;
+  margin-top: 8px;
+
+  .track-tag{
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin-right: 4px;
+    margin-top: 4px;
+    background: #ccc;
+    &.ios{ background: #f1bdbd };
+    &.android{ background: #bcf1bb };
+    &.main{ background: #d1e2ff };
+
+    i.fa{
+      margin-left: 4px;
+      margin-right: 0;
     }
   }
 }

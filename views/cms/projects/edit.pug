@@ -1,0 +1,76 @@
+extends ../layout
+
+block content
+    .page-header
+        h3=isCreate ? 'Create Project' : 'Edit Project'
+    form.form-horizontal(method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        .form-group
+            label.col-sm-3.control-label(for='id') Project ID*
+            .col-sm-7
+                input.form-control(value=project.id, name='id', id='id', placeholder='Project ID', disabled, required)
+        .form-group
+            label.col-sm-3.control-label(for='name') Project Name*
+            .col-sm-7
+                input.form-control(value=project.name, name='name', id='name', placeholder='Project Name', required)
+        .form-group
+            label.col-sm-3.control-label(for='description') Description
+            .col-sm-7
+                input.form-control(value=project.description, name='description', id='description', placeholder='Description')
+        .form-group
+            label.col-sm-3.control-label(for='track') Tracks
+            .col-sm-7
+                input.form-control(id='track', placeholder='Track Name')
+                .btn(onclick='onAddTrackClick(this)')
+                    | Add Track
+                #track-container
+
+        .form-group
+            .col-sm-offset-3.col-sm-7
+                button.col-sm-3.btn.btn-primary(type='submit')
+                    if isCreate
+                        i.fa.fa-plus
+                        | Create
+                    else
+                        i.fa.fa-save
+                        | Save
+    script.
+        var onAddTrackClick;
+        var onRemoveTrackClick;
+
+        document.addEventListener("DOMContentLoaded", function () {
+          var initialTracks = !{JSON.stringify(project.tracks || ['android']).replace(/<\//g, "<\\/")};
+          var tracks = [];
+          var trackContainer = $('#track-container');
+
+          onAddTrackClick = function() {
+            var val = $('#track').val();
+            if (val && tracks.indexOf(val) === -1) {
+              addTrack(val);
+              $('#track').val('');
+            }
+          }
+          onRemoveTrackClick = function(element) {
+            var parent = $(element).parent();
+            var track = parent.data('track');
+            var index = tracks.indexOf(track);
+            if (index !== -1) {
+              tracks.splice(index, 1);
+            }
+            parent.remove();
+          }
+
+          function addTrack(track) {
+            tracks.push(track);
+            trackContainer.append('<div class="track-tag" data-track="' + track + '">' +
+                '<input name="tracks[]" type="hidden" value="' + track + '">' +
+                track +
+                '<i class="fa fa-close" style="cursor: pointer;" onclick="onRemoveTrackClick(this)"></i>' +
+              '</div>')
+          }
+
+          for(var i = 0; i < initialTracks.length; i ++) {
+            addTrack(initialTracks[i]);
+          }
+
+        });

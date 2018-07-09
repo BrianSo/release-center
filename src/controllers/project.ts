@@ -44,8 +44,6 @@ export let index = asyncHandler(async (req: Request, res: Response) => {
     .populate("android")
     .populate("ios");
 
-  console.log(projects);
-
   res.render("cms/projects/projects", {
     title: "Projects",
     projects: projects,
@@ -57,8 +55,10 @@ export let index = asyncHandler(async (req: Request, res: Response) => {
  * Projects create page
  */
 export let getCreate = (req: Request, res: Response) => {
-  res.render("cms/projects/create", {
-    title: "Crete project"
+  res.render("cms/projects/edit", {
+    isCreate: true,
+    title: "Create project",
+    project: {},
   });
 };
 
@@ -80,11 +80,47 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
   await Project.create({
     id: req.body.id,
     name: req.body.name,
-    description: req.body.description
+    description: req.body.description,
+    tracks: req.body.tracks || [],
   });
 
   req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
   res.redirect("/cms/projects");
+});
+
+
+export let getEdit = asyncHandler(async (req: Request, res: Response) => {
+  const project = await Project.findOne({
+    id: req.params.id
+  });
+  res.render("cms/projects/edit", {
+    isCreate: false,
+    title: `Edit ${req.params.id}`,
+    project,
+  });
+});
+
+export let postEdit = asyncHandler(async (req: Request, res: Response) => {
+  req.assert("id", "ID cannot be blank").notEmpty();
+  req.assert("name", "Name cannot be blank").notEmpty();
+
+  const errors = req.validationErrors();
+
+  if (errors) {
+    req.flash("errors", errors);
+    return res.redirect("/cms/projects/create");
+  }
+
+  await Project.update({
+    id: req.params.id,
+  }, {
+    name: req.body.name,
+    description: req.body.description,
+    tracks: req.body.tracks || [],
+  });
+
+  req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
+  res.redirect(`/cms/projects/${req.params.id}`);
 });
 
 export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {

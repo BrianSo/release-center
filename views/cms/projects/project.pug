@@ -1,8 +1,12 @@
 extends ../layout
 
 block content
-    .page-header(style='display: flex; justify-content: space-between; align-items: center')
+    .page-header(style='display: flex; align-items: center')
         h3=project.name
+        .flex-space
+        a.col-sm-3.btn.btn-primary(href=`/cms/projects/${project.id}/edit`)
+            i.fa.fa-pencil
+            | Edit
         a.col-sm-3.btn.btn-primary(href=`/cms/projects/${project.id}/releases/create`)
             i.fa.fa-plus
             | Add Release
@@ -38,10 +42,9 @@ block content
                             span.date=latest.createdAt.toLocaleString()
                             a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
                                 | Download
-                    .space
-                    .actions
-                        button.btn(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
-                            | Versions
+                        .actions
+                            button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
+                                | Old Versions
                 .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
                     .card-body
                         .release-list.list-group
