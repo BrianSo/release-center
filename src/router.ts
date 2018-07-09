@@ -33,8 +33,9 @@ projectCMS.get("/:id/edit", projectController.getEdit);
 projectCMS.post("/:id/edit", projectController.postEdit);
 projectCMS.get("/:id/releases/create", projectController.getCreateRelease);
 projectCMS.post("/:id/releases/create", projectController.postCreateRelease);
-projectCMS.get("/:id/releases/:releaseId/edit", projectController.index);
-projectCMS.post("/:id/releases/:releaseId", projectController.index);
+projectCMS.get("/:id/releases/:releaseId/edit", projectController.getEditRelease);
+projectCMS.post("/:id/releases/:releaseId/edit", projectController.postEditRelease);
+projectCMS.get("/:id/releases/:releaseId/delete", projectController.deleteRelease);
 
 app.get("/:id", projectController.getProject);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);

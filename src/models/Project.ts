@@ -14,15 +14,6 @@ export type ProjectModel = mongoose.Document & {
     [key: string]: ReleaseModel[],
   },
 
-  // latest version
-  main: string | ReleaseModel,
-
-  // latest version of android
-  android: string | ReleaseModel,
-
-  // latest version of ios
-  ios: string | ReleaseModel,
-
   gravatar: (size: number) => string,
   populateReleases: () => Promise<ProjectModel>
 };
@@ -35,11 +26,6 @@ const schema = new mongoose.Schema({
   image: String,
 
   tracks: [String],
-
-  main: { type: mongoose.Schema.Types.ObjectId, ref: "Release" },
-  android: { type: mongoose.Schema.Types.ObjectId, ref: "Release" },
-  ios: { type: mongoose.Schema.Types.ObjectId, ref: "Release" },
-
 }, { timestamps: true });
 
 /**

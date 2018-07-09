@@ -1,0 +1,44 @@
+extends ../layout
+
+block content
+    .page-header
+        h3=isCreate ? 'Create Release' : 'Edit Release'
+    form.form-horizontal(method='POST', enctype='multipart/form-data')
+        input(type='hidden', name='_csrf', value=_csrf)
+        .form-group
+            label.col-sm-3.control-label(for='name') Release Name*
+            .col-sm-7
+                input.form-control(value=release.name, name='name', id='name', placeholder='Release Name', autofocus, required)
+        .form-group
+            label.col-sm-3.control-label(for='track') Track*
+            .col-sm-7
+                select.form-control(name='track', id='track', required)
+                    each track in project.tracks
+                        option(value=track, selected=release.track === track)
+                            =track
+        .form-group
+            label.col-sm-3.control-label(for='note') Release Note
+            .col-sm-7
+                input.form-control(value=release.note, name='note', id='note', placeholder='Project Note')
+        .form-group
+            label.col-sm-3.control-label(for='file') File
+            .col-sm-7
+                input.form-control(type='file', name='file', id='file', placeholder='File')
+        .form-group
+            .col-sm-offset-3.col-sm-7
+                button.col-sm-3.btn.btn-primary(type='submit')
+                    if isCreate
+                        i.fa.fa-plus
+                        | Create
+                    else
+                        i.fa.fa-save
+                        | Save
+                if !isCreate
+                    .col-sm-3.btn.btn-danger(onclick='deleteRelease()')
+                        | Delete
+    script.
+        function deleteRelease() {
+          if (confirm('Confirm Delete Release?')) {
+            window.location.href='/cms/projects/!{project.id}/releases/!{release._id}/delete';
+          }
+        }

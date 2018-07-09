@@ -22,12 +22,12 @@ block content
                             =project.name
                     .my-row
                         .latest.title
-                            if project.main
-                                span.main.tag main #{project.main.name}
-                            if project.ios
-                                span.ios.tag ios #{project.ios.name}
-                            if project.android
-                                span.android.tag android #{project.android.name}
+                            if project.releases.main && project.releases.main[0]
+                                span.main.tag main #{project.releases.main.name}
+                            if project.releases.ios && project.releases.ios[0]
+                                span.ios.tag ios #{project.releases.ios[0].name}
+                            if project.releases.android && project.releases.android[0]
+                                span.android.tag android #{project.releases.android[0].name}
     #releaseAccordion.accordion
         each track in project.tracks
             - const releases = project.releases[track];
@@ -42,6 +42,8 @@ block content
                             span.date=latest.createdAt.toLocaleString()
                             a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
                                 | Download
+                            a.btn.btn-link(href=`/cms/projects/${project.id}/releases/${latest._id}/edit`)
+                                | Edit
                         .actions
                             button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
                                 | Old Versions
@@ -53,5 +55,7 @@ block content
                                     .release
                                         span.version=release.name
                                         span.date=release.createdAt.toLocaleString()
-                                        a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                                        a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
                                             | Download
+                                        a.btn.btn-link(href=`/cms/projects/${project.id}/releases/${release._id}/edit`)
+                                            | Edit

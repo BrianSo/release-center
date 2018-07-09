@@ -29,9 +29,7 @@ const upload = multer({ storage });
 const retrieveProject = async (projectId: string): Promise<ProjectModel> => {
   return await Project.findOne({
     id: projectId
-  }).populate("main")
-    .populate("android")
-    .populate("ios");
+  });
 };
 
 /**
@@ -146,19 +144,31 @@ export let getProject = asyncHandler(async (req: Request, res: Response) => {
 export let getCreateRelease = asyncHandler(async (req: Request, res: Response) => {
   const project = await retrieveProject(req.params.id);
 
-  res.render("cms/projects/createRelease", {
+  res.render("cms/projects/editRelease", {
+    isCreate: true,
     title: project.name,
     project: project,
+    release: {},
+  });
+});
+
+export let getEditRelease = asyncHandler(async (req: Request, res: Response) => {
+  const project = await retrieveProject(req.params.id);
+  const release = await Release.findById(req.params.releaseId);
+
+  res.render("cms/projects/editRelease", {
+    isCreate: false,
+    title: project.name,
+    project: project,
+    release: release,
   });
 });
 
 export let postCreateRelease = compose([
   upload.single("file"),
   asyncHandler(async (req: Request, res: Response) => {
-    req.body.file = req.file;
     req.assert("name", "Name is required").notEmpty();
     req.assert("track", "Track is required").notEmpty();
-    req.assert("file", "File is required").exists();
 
     const errors = req.validationErrors();
 
@@ -172,22 +182,54 @@ export let postCreateRelease = compose([
       name: req.body.name,
       note: req.body.note,
       track: req.body.track,
-      fileName: req.file.originalname,
-      mimetype: req.file.mimetype,
-      path: req.file.path,
+      fileName: req.file && req.file.originalname,
+      mimetype: req.file && req.file.mimetype,
+      path: req.file && req.file.path,
     });
-
-    if (["android", "ios", "main"].indexOf(req.body.track) !== -1) {
-      await Project.update({
-        id: req.params.id
-      }, {
-        [req.body.track]: release._id
-      });
-    }
 
     res.redirect(`/cms/projects/${req.params.id}`);
   })
 ]);
+
+export let postEditRelease = compose([
+  upload.single("file"),
+  asyncHandler(async (req: Request, res: Response) => {
+    req.assert("name", "Name is required").notEmpty();
+    req.assert("track", "Track is required").notEmpty();
+
+    const errors = req.validationErrors();
+
+    if (errors) {
+      req.flash("errors", errors);
+      return res.redirect(`/cms/projects/${req.params.id}/releases/edit`);
+    }
+
+    const updates: any = {
+      name: req.body.name,
+      note: req.body.note,
+      track: req.body.track,
+    };
+
+    if (req.file) {
+      updates.fileName = req.file.originalname;
+      updates.mimetype = req.file.mimetype;
+      updates.path = req.file.path;
+    }
+
+    await Release.update({
+      _id: req.params.releaseId
+    }, updates);
+
+    res.redirect(`/cms/projects/${req.params.id}`);
+  })
+]);
+
+export let deleteRelease = asyncHandler(async (req: Request, res: Response) => {
+  await Release.deleteOne({
+    _id: req.params.releaseId
+  });
+  res.redirect(`/cms/projects/${req.params.id}`);
+});
 
 export let downloadRelease = asyncHandler(async (req: Request, res: Response) => {
   const release = await Release.findById(req.params.releaseId);

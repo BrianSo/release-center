@@ -25,27 +25,27 @@ block content
     each track in project.tracks
       - const releases = project.releases[track];
       - const latest = releases[0];
-      .card
-        .card-header(id=`heading-${track}`)
-          h5.mb-0
-            =track
-          if latest
+      if latest
+        .card
+          .card-header(id=`heading-${track}`)
+            h5.mb-0
+              =track
             .release.latest
               span.version #{latest.name} (Latest)
               span.date=latest.createdAt.toLocaleString()
               a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
                 | Download
-          .space
-          .actions
-            button.btn(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
-              | Versions
-        .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
-          .card-body
-            .release-list.list-group
-              .release-item.list-group-item
-                each release in releases
-                  .release
-                    span.version=release.name
-                    span.date=release.createdAt.toLocaleString()
-                    a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
-                      | Download
+            .actions
+              button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
+                | Old Versions
+
+          .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
+            .card-body
+              .release-list.list-group
+                .release-item.list-group-item
+                  each release in releases
+                    .release
+                      span.version=release.name
+                      span.date=release.createdAt.toLocaleString()
+                      a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
+                        | Download
