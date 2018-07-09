@@ -1,6 +1,6 @@
 {
   "name": "release-center",
-  "version": "0.1.0",
+  "version": "0.9.0-beta",
   "description": "Release your app/binary in an organized way",
   "repository": {
     "type": "git",
