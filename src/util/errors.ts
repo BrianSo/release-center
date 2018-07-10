@@ -13,3 +13,19 @@ export class NotFoundError extends Error {
     Error.captureStackTrace(this, NotFoundError);
   }
 }
+
+export class BadRequestError extends Error {
+  constructor(...args) {
+    super(...args);
+    this.status = 400;
+    Error.captureStackTrace(this, BadRequestError);
+  }
+}
+
+export class ConflictError extends Error {
+  constructor(...args) {
+    super(...args);
+    this.status = 409;
+    Error.captureStackTrace(this, ConflictError);
+  }
+}

@@ -1,12 +1,10 @@
-import errorHandler from "errorhandler";
+import errorHandler from "./middlewares/errorHandler";
 
 import app from "./app";
 import { bootstrap } from "./app";
 
-/**
- * Error Handler. Provides full stack - remove for production
- */
-app.use(errorHandler());
+
+app.use(errorHandler);
 
 bootstrap().then(() => {
   /**

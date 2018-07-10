@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 export type APIKeyModel = mongoose.Document & {
   key: string,
-  name: string
+  name: string,
+  projectId: String,
 };
 
 const schema = new mongoose.Schema({
   key: String,
   name: String,
+  projectId: String,
 }, { timestamps: true });
 
 schema.options.toJSON = {

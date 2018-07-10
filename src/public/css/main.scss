@@ -76,3 +76,14 @@ textarea {
 .flex-space{
   flex: 1;
 }
+
+.api-key-item{
+  max-width: 100%;
+  .name, .project{
+    display: inline-block;
+    min-width: 64px;
+  }
+  .key{
+    word-break: break-all;
+  }
+}

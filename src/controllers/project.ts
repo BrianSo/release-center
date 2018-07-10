@@ -7,7 +7,7 @@ import compose from "connect-compose";
 import path from "path";
 import fs from "fs-extra";
 import { STORAGE_DIRECTORY } from "../config/directory";
-import { NotFoundError } from "../util/errors";
+import {BadRequestError, ConflictError, NotFoundError, UnauthorizedError} from "../util/errors";
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file, cb) {
@@ -76,23 +76,36 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
   const errors = req.validationErrors();
 
   if (errors) {
-    req.flash("errors", errors);
-    return res.redirect("/cms/projects/create");
+    if (req.isAPICall) {
+      throw new BadRequestError(errors[0].msg);
+    } else {
+      req.flash("errors", errors);
+      return res.redirect("/cms/projects/create");
+    }
   }
 
-  const project = await Project.create({
-    id: req.body.id,
-    name: req.body.name,
-    description: req.body.description,
-    tracks: req.body.tracks || [],
-  });
+  try {
+    const project = await Project.create({
+      id: req.body.id,
+      name: req.body.name,
+      description: req.body.description,
+      tracks: req.body.tracks || [],
+    });
 
-  if (req.isAPICall) {
-    res.json(project.toJSON());
-  } else {
-    req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
-    res.redirect("/cms/projects");
+    if (req.isAPICall) {
+      res.json(project.toJSON());
+    } else {
+      req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
+      res.redirect("/cms/projects");
+    }
+  } catch (e) {
+    if (e && e.code === 11000) {
+      throw new ConflictError("Project Already exists");
+    } else {
+      throw e;
+    }
   }
+
 });
 
 
@@ -114,8 +127,12 @@ export let postEdit = asyncHandler(async (req: Request, res: Response) => {
   const errors = req.validationErrors();
 
   if (errors) {
-    req.flash("errors", errors);
-    return res.redirect("/cms/projects/create");
+    if (req.isAPICall) {
+      throw new BadRequestError(errors[0].msg);
+    } else {
+      req.flash("errors", errors);
+      return res.redirect("/cms/projects/create");
+    }
   }
 
   const project = await Project.findOneAndUpdate({
@@ -191,8 +208,12 @@ export let postCreateRelease = compose([
     const errors = req.validationErrors();
 
     if (errors) {
-      req.flash("errors", errors);
-      return res.redirect(`/cms/projects/${req.params.id}/releases/create`);
+      if (req.isAPICall) {
+        throw new BadRequestError(errors[0].msg);
+      } else {
+        req.flash("errors", errors);
+        return res.redirect(`/cms/projects/${req.params.id}/releases/create`);
+      }
     }
 
     const release = await Release.create({
@@ -208,6 +229,7 @@ export let postCreateRelease = compose([
     if (req.isAPICall) {
       res.json(release.toJSON());
     } else {
+      req.flash("success", { msg: `Success! Created Release ${req.body.name}` });
       res.redirect(`/cms/projects/${req.params.id}`);
     }
   })
@@ -222,8 +244,12 @@ export let postEditRelease = compose([
     const errors = req.validationErrors();
 
     if (errors) {
-      req.flash("errors", errors);
-      return res.redirect(`/cms/projects/${req.params.id}/releases/edit`);
+      if (req.isAPICall) {
+        throw new BadRequestError(errors[0].msg);
+      } else {
+        req.flash("errors", errors);
+        return res.redirect(`/cms/projects/${req.params.id}/releases/edit`);
+      }
     }
 
     const updates: any = {

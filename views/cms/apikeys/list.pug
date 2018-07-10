@@ -1,0 +1,14 @@
+extends ../layout
+
+block content
+    .page-header(style='display: flex; justify-content: space-between; align-items: center')
+        h3 All API Keys
+        a.col-sm-3.btn.btn-primary(href='/cms/api_keys/create')
+            i.fa.fa-plus
+            | Create API Key
+    .list-group
+        each apiKey in apiKeys
+            .api-key-item.list-group-item
+                span.name=apiKey.name
+                span.project=apiKey.projectId
+                span.key=apiKey.key
