@@ -2,6 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import passport from "passport";
 import { UserModel } from "../models/User";
 import { IVerifyOptions } from "passport-local";
+import APIKey from "../models/APIKey";
+import { asyncHandler } from "../util/asyncHandler";
+import crypto from "crypto";
 
 /**
  * GET /
@@ -71,3 +74,39 @@ export let logout = (req: Request, res: Response) => {
   req.logout();
   res.redirect("/");
 };
+
+export let getAPIKeys = asyncHandler(async (req: Request, res: Response) => {
+  const apiKeys = await APIKey.find();
+  res.render("cms/apiKeys/list", {
+    title: "API Keys",
+    apiKeys
+  });
+});
+
+export let getCreateAPIKeys = asyncHandler(async (req: Request, res: Response) => {
+  res.render("cms/apiKeys/edit", {
+    title: "API Keys",
+    isCreate: true,
+    apiKey: {}
+  });
+});
+
+export let postCreateAPIKeys = asyncHandler(async (req: Request, res: Response) => {
+  req.assert("name", "Name is required").notEmpty();
+  req.assert("projectId", "Project ID is required").notEmpty();
+
+  const errors = req.validationErrors();
+
+  if (errors) {
+    req.flash("errors", errors);
+    return res.redirect(req.originalUrl);
+  }
+
+  const apiKey = await APIKey.create({
+    name: req.body.name,
+    projectId: req.body.projectId,
+    key: crypto.randomBytes(32).toString("base64")
+  });
+  req.flash("success", { msg: `Success! Created ${req.body.name} API Key: ${apiKey.key}` });
+  res.redirect("/cms/api_keys");
+});

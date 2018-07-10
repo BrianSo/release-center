@@ -13,6 +13,9 @@
       ul.nav.navbar-nav
         li(class=(title === 'Projects') ? 'active' : undefined)
           a(href='/cms/projects') Projects
+      ul.nav.navbar-nav
+        li(class=(title === 'API Keys') ? 'active' : undefined)
+          a(href='/cms/api_keys') API Keys
       ul.nav.navbar-nav.navbar-right
         if !user
           li(class=(title === 'Login') ? 'active' : undefined)

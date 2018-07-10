@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+    .page-header
+        h3=isCreate ? 'Create Project' : 'Edit Project'
+    form.form-horizontal(method='POST')
+        input(type='hidden', name='_csrf', value=_csrf)
+        .form-group
+            label.col-sm-3.control-label(for='name') API Key Name*
+            .col-sm-7
+                input.form-control(value=apiKey.name, name='name', id='name', placeholder='API Key Name', required)
+        .form-group
+            label.col-sm-3.control-label(for='projectId') Project ID*
+            .col-sm-7
+                input.form-control(value=apiKey.name, name='projectId', id='projectId', placeholder='Project ID', required)
+        .form-group
+            .col-sm-offset-3.col-sm-7
+                button.col-sm-3.btn.btn-primary(type='submit')
+                    if isCreate
+                        i.fa.fa-plus
+                        | Create
+                    else
+                        i.fa.fa-save
+                        | Save

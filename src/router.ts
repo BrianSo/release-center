@@ -4,9 +4,9 @@ import { Router } from "express";
 import * as projectController from "./controllers/project";
 import * as cmsController from "./controllers/cms";
 
-
 // API keys and Passport configuration
 import * as passportConfig from "./config/passport";
+import * as apiAuthorization from "./middlewares/apiAuthorization";
 
 const app = Router();
 
@@ -18,6 +18,13 @@ app.get("/cms", cmsController.index);
 app.get("/cms/login", cmsController.getLogin);
 app.post("/cms/login", cmsController.postLogin);
 app.get("/cms/logout", cmsController.logout);
+
+app.use("/cms/api_keys", passportConfig.isAuthenticated);
+{
+  app.get("/cms/api_keys", cmsController.getAPIKeys);
+  app.get("/cms/api_keys/create", cmsController.getCreateAPIKeys);
+  app.post("/cms/api_keys/create", cmsController.postCreateAPIKeys);
+}
 
 const projectCMS = Router();
 app.use(
@@ -36,6 +43,30 @@ projectCMS.post("/:id/releases/create", projectController.postCreateRelease);
 projectCMS.get("/:id/releases/:releaseId/edit", projectController.getEditRelease);
 projectCMS.post("/:id/releases/:releaseId/edit", projectController.postEditRelease);
 projectCMS.get("/:id/releases/:releaseId/delete", projectController.deleteRelease);
+
+const apiRouter = Router();
+app.use(
+  "/api",
+  (req, res, next) => { req.isAPICall = true; next(); },
+  apiRouter,
+);
+
+apiRouter.get("/projects/:id", projectController.getProject);
+// apiRouter.get("/projects/:id/releases/latest", projectController.getProjectLatestRelease);
+// apiRouter.get("/projects/:id/releases/latest/download", projectController.downloadRelease);
+apiRouter.get("/projects/:id/releases/:releaseId/download", projectController.downloadRelease);
+
+// below require API Key
+const authorizedApiRouter = Router();
+apiRouter.use(
+  apiAuthorization.isAuthorized,
+  authorizedApiRouter
+);
+authorizedApiRouter.post("/projects", apiAuthorization.isAuthorizedForProject, projectController.postCreate);
+authorizedApiRouter.patch("/projects/:id", apiAuthorization.isAuthorizedForProject, projectController.postEdit);
+authorizedApiRouter.post("/projects/:id/releases", apiAuthorization.isAuthorizedForProject, projectController.postCreateRelease);
+authorizedApiRouter.patch("/projects/:id/releases/:releaseId", apiAuthorization.isAuthorizedForProject, projectController.postEditRelease);
+
 
 app.get("/:id", projectController.getProject);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);

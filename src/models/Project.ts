@@ -58,5 +58,14 @@ schema.methods.populateReleases = async function(this: ProjectModel): Promise<Pr
   return this;
 };
 
+schema.options.toJSON = {
+  transform: function(doc, ret, options) {
+    ret.releases = doc.releases;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+};
+
 const Project = mongoose.model<ProjectModel>("Project", schema);
 export default Project;

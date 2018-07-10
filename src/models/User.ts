@@ -64,5 +64,14 @@ schema.methods.gravatar = function (size: number = 200) {
   return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`;
 };
 
+schema.options.toJSON = {
+  transform: function(doc, ret, options) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+};
+
 const User = mongoose.model<UserModel>("User", schema);
 export default User;
