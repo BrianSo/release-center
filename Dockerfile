@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # Install Dependencies
 COPY ./package.json ./yarn.lock ./
-RUN yarn
+RUN yarn --production
 
 # Install Production Code
 COPY . ./

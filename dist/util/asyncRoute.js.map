@@ -1,0 +1,1 @@
+{"version":3,"file":"asyncRoute.js","sourceRoot":"","sources":["../../src/util/asyncRoute.ts"],"names":[],"mappings":";;AAOa,QAAA,qBAAqB,GAAG,CAAC,GAAe,EAAc,EAAE;IACnE,KAAK,MAAM,GAAG,IAAI,MAAM,CAAC,IAAI,CAAC,GAAG,CAAC,EAAE;QAClC,MAAM,KAAK,GAAQ,GAAG,CAAC,GAAG,CAAC,CAAC;QAC5B,IAAI,OAAO,KAAK,KAAK,UAAU,EAAE;SAEhC;KACF;AACH,CAAC,CAAC"}

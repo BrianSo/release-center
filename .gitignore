@@ -38,8 +38,5 @@ bower_components
 .DS_Store
 Thumbs.db
 
-# Ignore built ts files
-dist/**/*
-
 # Ignore output from coverage report
 coverage
