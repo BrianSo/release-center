@@ -31,7 +31,7 @@ services:
       - traefik-net
     deploy:
       labels:
-        traefik.frontned.rule: Host:release.brianso.space
+        traefik.frontend.rule: Host:release.brianso.space
         traefik.port: 3000
         traefik.docker.network: traefik-net
     environment:
