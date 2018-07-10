@@ -77,14 +77,14 @@ export let logout = (req: Request, res: Response) => {
 
 export let getAPIKeys = asyncHandler(async (req: Request, res: Response) => {
   const apiKeys = await APIKey.find();
-  res.render("cms/apiKeys/list", {
+  res.render("cms/apikeys/list", {
     title: "API Keys",
     apiKeys
   });
 });
 
 export let getCreateAPIKeys = asyncHandler(async (req: Request, res: Response) => {
-  res.render("cms/apiKeys/edit", {
+  res.render("cms/apikeys/edit", {
     title: "API Keys",
     isCreate: true,
     apiKey: {}

@@ -8,7 +8,7 @@ block content
         .form-group
             label.col-sm-3.control-label(for='id') Project ID*
             .col-sm-7
-                input.form-control(value=project.id, name='id', id='id', placeholder='Project ID', disabled, required)
+                input.form-control(value=project.id, name='id', id='id', placeholder='Project ID', disabled=!isCreate, required)
         .form-group
             label.col-sm-3.control-label(for='name') Project Name*
             .col-sm-7

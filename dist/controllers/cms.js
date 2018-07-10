@@ -75,13 +75,13 @@ exports.logout = (req, res) => {
 };
 exports.getAPIKeys = asyncHandler_1.asyncHandler(async (req, res) => {
     const apiKeys = await APIKey_1.default.find();
-    res.render("cms/apiKeys/list", {
+    res.render("cms/apikeys/list", {
         title: "API Keys",
         apiKeys
     });
 });
 exports.getCreateAPIKeys = asyncHandler_1.asyncHandler(async (req, res) => {
-    res.render("cms/apiKeys/edit", {
+    res.render("cms/apikeys/edit", {
         title: "API Keys",
         isCreate: true,
         apiKey: {}
