@@ -21,6 +21,14 @@ const schema = new mongoose.Schema({
   path: String,
 }, { timestamps: true });
 
+schema.options.toJSON = {
+  transform: function(doc, ret, options) {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+};
 
 const Release = mongoose.model<ReleaseModel>("Release", schema);
 export default Release;

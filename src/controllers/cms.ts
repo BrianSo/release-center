@@ -71,3 +71,16 @@ export let logout = (req: Request, res: Response) => {
   req.logout();
   res.redirect("/");
 };
+
+
+export let getAPIKeys = (req: Request, res: Response) => {
+
+};
+
+export let getCreateAPIKeys = (req: Request, res: Response) => {
+
+};
+
+export let postCreateAPIKeys = (req: Request, res: Response) => {
+
+};

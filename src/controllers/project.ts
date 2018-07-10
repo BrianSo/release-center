@@ -7,6 +7,7 @@ import compose from "connect-compose";
 import path from "path";
 import fs from "fs-extra";
 import { STORAGE_DIRECTORY } from "../config/directory";
+import { NotFoundError } from "../util/errors";
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file, cb) {
@@ -27,9 +28,13 @@ const upload = multer({ storage });
 
 
 const retrieveProject = async (projectId: string): Promise<ProjectModel> => {
-  return await Project.findOne({
+  const project = await Project.findOne({
     id: projectId
   });
+  if (!project) {
+    throw new NotFoundError("Project Not found");
+  }
+  return project;
 };
 
 /**
@@ -75,15 +80,19 @@ export let postCreate = asyncHandler(async (req: Request, res: Response) => {
     return res.redirect("/cms/projects/create");
   }
 
-  await Project.create({
+  const project = await Project.create({
     id: req.body.id,
     name: req.body.name,
     description: req.body.description,
     tracks: req.body.tracks || [],
   });
 
-  req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
-  res.redirect("/cms/projects");
+  if (req.isAPICall) {
+    res.json(project.toJSON());
+  } else {
+    req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
+    res.redirect("/cms/projects");
+  }
 });
 
 
@@ -109,7 +118,7 @@ export let postEdit = asyncHandler(async (req: Request, res: Response) => {
     return res.redirect("/cms/projects/create");
   }
 
-  await Project.update({
+  const project = await Project.findOneAndUpdate({
     id: req.params.id,
   }, {
     name: req.body.name,
@@ -117,8 +126,13 @@ export let postEdit = asyncHandler(async (req: Request, res: Response) => {
     tracks: req.body.tracks || [],
   });
 
-  req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
-  res.redirect(`/cms/projects/${req.params.id}`);
+  if (req.isAPICall) {
+    res.json(project.toJSON());
+  } else {
+    req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
+    res.redirect(`/cms/projects/${req.params.id}`);
+  }
+
 });
 
 export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
@@ -135,10 +149,14 @@ export let getProject = asyncHandler(async (req: Request, res: Response) => {
   const project = await retrieveProject(req.params.id);
   await project.populateReleases();
 
-  res.render("projects/project", {
-    title: project.name,
-    project: project,
-  });
+  if (req.isAPICall) {
+    res.json(project.toJSON());
+  } else {
+    res.render("projects/project", {
+      title: project.name,
+      project: project,
+    });
+  }
 });
 
 export let getCreateRelease = asyncHandler(async (req: Request, res: Response) => {
@@ -187,7 +205,11 @@ export let postCreateRelease = compose([
       path: req.file && req.file.path,
     });
 
-    res.redirect(`/cms/projects/${req.params.id}`);
+    if (req.isAPICall) {
+      res.json(release.toJSON());
+    } else {
+      res.redirect(`/cms/projects/${req.params.id}`);
+    }
   })
 ]);
 
@@ -216,11 +238,13 @@ export let postEditRelease = compose([
       updates.path = req.file.path;
     }
 
-    await Release.update({
-      _id: req.params.releaseId
-    }, updates);
+    const release = await Release.findByIdAndUpdate(req.params.releaseId, updates);
 
-    res.redirect(`/cms/projects/${req.params.id}`);
+    if (req.isAPICall) {
+      res.json(release.toJSON());
+    } else {
+      res.redirect(`/cms/projects/${req.params.id}`);
+    }
   })
 ]);
 
