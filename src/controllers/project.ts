@@ -7,7 +7,7 @@ import compose from "connect-compose";
 import path from "path";
 import fs from "fs-extra";
 import { STORAGE_DIRECTORY } from "../config/directory";
-import {BadRequestError, ConflictError, NotFoundError, UnauthorizedError} from "../util/errors";
+import { BadRequestError, ConflictError, NotFoundError, UnauthorizedError } from "../util/errors";
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file, cb) {

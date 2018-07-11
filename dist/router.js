@@ -23,6 +23,9 @@ app.get("/cms", cmsController.index);
 app.get("/cms/login", cmsController.getLogin);
 app.post("/cms/login", cmsController.postLogin);
 app.get("/cms/logout", cmsController.logout);
+app.get("/cms/account", cmsController.getAccount);
+app.post("/cms/account/profile", cmsController.postUpdateProfile);
+app.post("/cms/account/password", cmsController.postUpdatePassword);
 app.use("/cms/api_keys", passportConfig.isAuthenticated);
 {
     app.get("/cms/api_keys", cmsController.getAPIKeys);

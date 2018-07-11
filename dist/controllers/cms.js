@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
+const User_1 = __importDefault(require("../models/User"));
 const APIKey_1 = __importDefault(require("../models/APIKey"));
 const asyncHandler_1 = require("../util/asyncHandler");
 const crypto_1 = __importDefault(require("crypto"));
@@ -102,5 +103,71 @@ exports.postCreateAPIKeys = asyncHandler_1.asyncHandler(async (req, res) => {
     });
     req.flash("success", { msg: `Success! Created ${req.body.name} API Key: ${apiKey.key}` });
     res.redirect("/cms/api_keys");
+});
+/**
+ * GET /cms/account
+ * Profile page.
+ */
+exports.getAccount = (req, res) => {
+    res.render("cms/account/profile", {
+        title: "Account Management"
+    });
+};
+/**
+ * POST /account/profile
+ * Update profile information.
+ */
+exports.postUpdateProfile = asyncHandler_1.asyncHandler(async (req, res, next) => {
+    req.assert("email", "Please enter a valid email address.").isEmail();
+    req.sanitize("email").normalizeEmail({ gmail_remove_dots: false });
+    const errors = req.validationErrors();
+    if (errors) {
+        req.flash("errors", errors);
+        return res.redirect("/cms/account");
+    }
+    const user = await User_1.default.findById(req.user.id);
+    user.email = req.body.email || "";
+    try {
+        await user.save();
+        req.flash("success", { msg: "Profile information has been updated." });
+        res.redirect("/cms/account");
+    }
+    catch (err) {
+        if (err.code === 11000) {
+            req.flash("errors", { msg: "The email address you have entered is already associated with an account." });
+            return res.redirect("/cms/account");
+        }
+        throw err;
+    }
+});
+/**
+ * POST /account/password
+ * Update current password.
+ */
+exports.postUpdatePassword = asyncHandler_1.asyncHandler(async (req, res, next) => {
+    req.assert("oldPassword", "Current Password is required").notEmpty();
+    req.assert("password", "Password must be at least 4 characters long").len({ min: 4 });
+    req.assert("confirmPassword", "Passwords do not match").equals(req.body.password);
+    const errors = req.validationErrors();
+    if (errors) {
+        req.flash("errors", errors);
+        return res.redirect("/cms/account");
+    }
+    const user = await User_1.default.findById(req.user.id);
+    const isPasswordMatch = await new Promise((res, rej) => {
+        user.comparePassword(req.body.oldPassword, (err, isPasswordMatch) => {
+            if (err)
+                return rej(err);
+            res(isPasswordMatch);
+        });
+    });
+    if (!isPasswordMatch) {
+        req.flash("errors", [{ msg: "Current password not match" }]);
+        return res.redirect("/cms/account");
+    }
+    user.password = req.body.password;
+    await user.save();
+    req.flash("success", { msg: "Password has been changed." });
+    res.redirect("/cms/account");
 });
 //# sourceMappingURL=cms.js.map
