@@ -61,9 +61,7 @@ app.use(router_1.default);
 exports.default = app;
 exports.bootstrap = async () => {
     await (async function createAdminUser() {
-        const existingUser = await User_1.default.findOne({
-            email: process.env.ADMIN_EMAIL
-        });
+        const existingUser = await User_1.default.findOne({});
         if (!existingUser) {
             console.log("Creating Admin Account");
             User_1.default.create({

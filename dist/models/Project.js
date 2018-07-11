@@ -27,10 +27,6 @@ schema.methods.populateReleases = async function () {
     // populate releases
     this.releases = {};
     await Promise.all(this.tracks.map(async (track) => {
-        console.log({
-            projectId: this.id,
-            track: track
-        });
         this.releases[track] = await Release_1.default.find({
             projectId: this.id,
             track: track

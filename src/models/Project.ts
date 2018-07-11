@@ -44,11 +44,6 @@ schema.methods.populateReleases = async function(this: ProjectModel): Promise<Pr
   // populate releases
   this.releases = {};
   await Promise.all(this.tracks.map(async (track) => {
-    console.log({
-      projectId: this.id,
-      track: track
-    });
-
     this.releases[track] = await Release.find({
       projectId: this.id,
       track: track

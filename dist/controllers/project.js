@@ -163,6 +163,18 @@ exports.getProject = asyncHandler_1.asyncHandler(async (req, res) => {
         });
     }
 });
+/**
+ * GET /projects/:id/releases/latest
+ */
+exports.getProjectLatestRelease = asyncHandler_1.asyncHandler(async (req, res) => {
+    const project = await retrieveProject(req.params.id);
+    await project.populateReleases();
+    const result = {};
+    for (const track of project.tracks) {
+        result[track] = project.releases[track][0];
+    }
+    res.json(result);
+});
 exports.getCreateRelease = asyncHandler_1.asyncHandler(async (req, res) => {
     const project = await retrieveProject(req.params.id);
     res.render("cms/projects/editRelease", {

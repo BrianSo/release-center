@@ -55,8 +55,7 @@ app.use(
 );
 
 apiRouter.get("/projects/:id", projectController.getProject);
-// apiRouter.get("/projects/:id/releases/latest", projectController.getProjectLatestRelease);
-// apiRouter.get("/projects/:id/releases/latest/download", projectController.downloadRelease);
+apiRouter.get("/projects/:id/releases/latest", projectController.getProjectLatestRelease);
 apiRouter.get("/projects/:id/releases/:releaseId/download", projectController.downloadRelease);
 
 // below require API Key
@@ -69,7 +68,6 @@ authorizedApiRouter.post("/projects", apiAuthorization.isAuthorizedForProject, p
 authorizedApiRouter.patch("/projects/:id", apiAuthorization.isAuthorizedForProject, projectController.postEdit);
 authorizedApiRouter.post("/projects/:id/releases", apiAuthorization.isAuthorizedForProject, projectController.postCreateRelease);
 authorizedApiRouter.patch("/projects/:id/releases/:releaseId", apiAuthorization.isAuthorizedForProject, projectController.postEditRelease);
-
 
 app.get("/:id", projectController.getProject);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);

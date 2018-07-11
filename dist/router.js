@@ -48,8 +48,7 @@ projectCMS.get("/:id/releases/:releaseId/delete", projectController.deleteReleas
 const apiRouter = express_1.Router();
 app.use("/api", (req, res, next) => { req.isAPICall = true; next(); }, apiRouter);
 apiRouter.get("/projects/:id", projectController.getProject);
-// apiRouter.get("/projects/:id/releases/latest", projectController.getProjectLatestRelease);
-// apiRouter.get("/projects/:id/releases/latest/download", projectController.downloadRelease);
+apiRouter.get("/projects/:id/releases/latest", projectController.getProjectLatestRelease);
 apiRouter.get("/projects/:id/releases/:releaseId/download", projectController.downloadRelease);
 // below require API Key
 const authorizedApiRouter = express_1.Router();

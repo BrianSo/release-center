@@ -69,9 +69,7 @@ export default app;
 
 export const bootstrap = async () => {
   await (async function createAdminUser() {
-    const existingUser: UserModel = await User.findOne({
-      email: process.env.ADMIN_EMAIL
-    });
+    const existingUser: UserModel = await User.findOne({});
 
     if (!existingUser) {
       console.log("Creating Admin Account");

@@ -176,6 +176,22 @@ export let getProject = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /projects/:id/releases/latest
+ */
+export let getProjectLatestRelease = asyncHandler(async (req: Request, res: Response) => {
+  const project = await retrieveProject(req.params.id);
+  await project.populateReleases();
+
+  const result = {};
+
+  for(const track of project.tracks) {
+    result[track] = project.releases[track][0];
+  }
+
+  res.json(result);
+});
+
 export let getCreateRelease = asyncHandler(async (req: Request, res: Response) => {
   const project = await retrieveProject(req.params.id);
 
