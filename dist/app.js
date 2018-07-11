@@ -18,6 +18,7 @@ const express_validator_1 = __importDefault(require("express-validator"));
 const secrets_1 = require("./util/secrets");
 const router_1 = __importDefault(require("./router"));
 const User_1 = __importDefault(require("./models/User"));
+const morgan = require("morgan");
 const MongoStore = connect_mongo_1.default(express_session_1.default);
 // Load environment variables from .env file, where API keys and passwords are configured
 dotenv_1.default.config({ path: ".env.default" });
@@ -34,6 +35,7 @@ mongoose_1.default.connect(mongoUrl).then(() => { }).catch(err => {
 app.set("port", process.env.PORT || 3000);
 app.set("views", path_1.default.join(__dirname, "../views"));
 app.set("view engine", "pug");
+app.use(process.env.NODE_ENV === "production" ? morgan("combined") : morgan("dev"));
 app.use(compression_1.default());
 app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));

@@ -13,6 +13,7 @@ import expressValidator from "express-validator";
 import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
 import router from "./router";
 import {default as User, UserModel} from "./models/User";
+import morgan = require("morgan");
 
 const MongoStore = mongo(session);
 
@@ -36,6 +37,7 @@ mongoose.connect(mongoUrl).then(
 app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
+app.use(process.env.NODE_ENV === "production" ? morgan("combined") : morgan("dev"));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
