@@ -58,6 +58,7 @@ authorizedApiRouter.patch("/projects/:id", apiAuthorization.isAuthorizedForProje
 authorizedApiRouter.post("/projects/:id/releases", apiAuthorization.isAuthorizedForProject, projectController.postCreateRelease);
 authorizedApiRouter.patch("/projects/:id/releases/:releaseId", apiAuthorization.isAuthorizedForProject, projectController.postEditRelease);
 app.get("/:id", projectController.getProject);
+app.get("/:id/image", projectController.getProjectImage);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);
 //
 // app.get("/logout", userController.logout);

@@ -70,6 +70,7 @@ authorizedApiRouter.post("/projects/:id/releases", apiAuthorization.isAuthorized
 authorizedApiRouter.patch("/projects/:id/releases/:releaseId", apiAuthorization.isAuthorizedForProject, projectController.postEditRelease);
 
 app.get("/:id", projectController.getProject);
+app.get("/:id/image", projectController.getProjectImage);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);
 
 //

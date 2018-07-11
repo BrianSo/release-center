@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import Project, { ProjectModel } from "../models/Project";
 import Release from "../models/Release";
 import { asyncHandler } from "../util/asyncHandler";
@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
     });
   },
   filename: function (req, file, cb) {
-    cb(undefined, file.originalname + "-" + new Date().toISOString());
+    cb(undefined, req.fileName || (file.originalname + "-" + new Date().toISOString()));
   }
 });
 const upload = multer({ storage });
@@ -69,44 +69,48 @@ export let getCreate = (req: Request, res: Response) => {
  * POST /cms/projects/create
  * Projects create action
  */
-export let postCreate = asyncHandler(async (req: Request, res: Response) => {
-  req.assert("id", "ID cannot be blank").notEmpty();
-  req.assert("name", "Name cannot be blank").notEmpty();
+export let postCreate = compose([
+  (req, res, next) => { req.fileName = "icon"; next(); },
+  upload.single("file"),
+  asyncHandler(async (req: Request, res: Response) => {
+    req.assert("id", "ID cannot be blank").notEmpty();
+    req.assert("name", "Name cannot be blank").notEmpty();
 
-  const errors = req.validationErrors();
+    const errors = req.validationErrors();
 
-  if (errors) {
-    if (req.isAPICall) {
-      throw new BadRequestError(errors[0].msg);
-    } else {
-      req.flash("errors", errors);
-      return res.redirect("/cms/projects/create");
+    if (errors) {
+      if (req.isAPICall) {
+        throw new BadRequestError(errors[0].msg);
+      } else {
+        req.flash("errors", errors);
+        return res.redirect("/cms/projects/create");
+      }
     }
-  }
 
-  try {
-    const project = await Project.create({
-      id: req.body.id,
-      name: req.body.name,
-      description: req.body.description,
-      tracks: req.body.tracks || [],
-    });
+    try {
+      const project = await Project.create({
+        id: req.body.id,
+        name: req.body.name,
+        description: req.body.description,
+        tracks: req.body.tracks || [],
+      });
 
-    if (req.isAPICall) {
-      res.json(project.toJSON());
-    } else {
-      req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
-      res.redirect("/cms/projects");
+      if (req.isAPICall) {
+        res.json(project.toJSON());
+      } else {
+        req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
+        res.redirect("/cms/projects");
+      }
+    } catch (e) {
+      if (e && e.code === 11000) {
+        throw new ConflictError("Project Already exists");
+      } else {
+        throw e;
+      }
     }
-  } catch (e) {
-    if (e && e.code === 11000) {
-      throw new ConflictError("Project Already exists");
-    } else {
-      throw e;
-    }
-  }
 
-});
+  })
+]);
 
 
 export let getEdit = asyncHandler(async (req: Request, res: Response) => {
@@ -120,37 +124,42 @@ export let getEdit = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export let postEdit = asyncHandler(async (req: Request, res: Response) => {
-  req.assert("id", "ID cannot be blank").notEmpty();
-  req.assert("name", "Name cannot be blank").notEmpty();
+export let postEdit = compose([
+  (req, res, next) => { req.fileName = "icon"; next(); },
+  upload.single("file"),
+  asyncHandler(async (req: Request, res: Response) => {
+    req.assert("id", "ID cannot be blank").notEmpty();
+    req.assert("name", "Name cannot be blank").notEmpty();
 
-  const errors = req.validationErrors();
+    const errors = req.validationErrors();
 
-  if (errors) {
-    if (req.isAPICall) {
-      throw new BadRequestError(errors[0].msg);
-    } else {
-      req.flash("errors", errors);
-      return res.redirect("/cms/projects/create");
+    if (errors) {
+      if (req.isAPICall) {
+        throw new BadRequestError(errors[0].msg);
+      } else {
+        req.flash("errors", errors);
+        return res.redirect("/cms/projects/create");
+      }
     }
-  }
 
-  const project = await Project.findOneAndUpdate({
-    id: req.params.id,
-  }, {
-    name: req.body.name,
-    description: req.body.description,
-    tracks: req.body.tracks || [],
-  });
+    const project = await Project.findOneAndUpdate({
+      id: req.params.id,
+    }, {
+      name: req.body.name,
+      description: req.body.description,
+      tracks: req.body.tracks || [],
+      image: (!!req.file) ? `/${req.params.id}/image` : null,
+    });
 
-  if (req.isAPICall) {
-    res.json(project.toJSON());
-  } else {
-    req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
-    res.redirect(`/cms/projects/${req.params.id}`);
-  }
+    if (req.isAPICall) {
+      res.json(project.toJSON());
+    } else {
+      req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
+      res.redirect(`/cms/projects/${req.params.id}`);
+    }
 
-});
+  })
+]);
 
 export let getCMSProject = asyncHandler(async (req: Request, res: Response) => {
   const project = await retrieveProject(req.params.id);
@@ -302,5 +311,14 @@ export let downloadRelease = asyncHandler(async (req: Request, res: Response) =>
 
   res.setHeader("Content-disposition", `attachment; filename=${release.fileName}`);
   res.setHeader("Content-type", release.mimetype);
-  fs.createReadStream(release.path).pipe(res);
+  const stream = fs.createReadStream(release.path);
+  stream.on("error", (err) => next(err));
+  stream.pipe(res);
+});
+
+export let getProjectImage = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const imagePath = path.join(STORAGE_DIRECTORY, `upload/${req.params.id}/icon`);
+  const stream = fs.createReadStream(imagePath);
+  stream.on("error", (err) => next(err));
+  stream.pipe(res);
 });

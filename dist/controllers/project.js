@@ -25,7 +25,7 @@ const storage = multer_1.default.diskStorage({
         });
     },
     filename: function (req, file, cb) {
-        cb(undefined, file.originalname + "-" + new Date().toISOString());
+        cb(undefined, req.fileName || (file.originalname + "-" + new Date().toISOString()));
     }
 });
 const upload = multer_1.default({ storage });
@@ -67,43 +67,47 @@ exports.getCreate = (req, res) => {
  * POST /cms/projects/create
  * Projects create action
  */
-exports.postCreate = asyncHandler_1.asyncHandler(async (req, res) => {
-    req.assert("id", "ID cannot be blank").notEmpty();
-    req.assert("name", "Name cannot be blank").notEmpty();
-    const errors = req.validationErrors();
-    if (errors) {
-        if (req.isAPICall) {
-            throw new errors_1.BadRequestError(errors[0].msg);
+exports.postCreate = connect_compose_1.default([
+    (req, res, next) => { req.fileName = "icon"; next(); },
+    upload.single("file"),
+    asyncHandler_1.asyncHandler(async (req, res) => {
+        req.assert("id", "ID cannot be blank").notEmpty();
+        req.assert("name", "Name cannot be blank").notEmpty();
+        const errors = req.validationErrors();
+        if (errors) {
+            if (req.isAPICall) {
+                throw new errors_1.BadRequestError(errors[0].msg);
+            }
+            else {
+                req.flash("errors", errors);
+                return res.redirect("/cms/projects/create");
+            }
         }
-        else {
-            req.flash("errors", errors);
-            return res.redirect("/cms/projects/create");
+        try {
+            const project = await Project_1.default.create({
+                id: req.body.id,
+                name: req.body.name,
+                description: req.body.description,
+                tracks: req.body.tracks || [],
+            });
+            if (req.isAPICall) {
+                res.json(project.toJSON());
+            }
+            else {
+                req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
+                res.redirect("/cms/projects");
+            }
         }
-    }
-    try {
-        const project = await Project_1.default.create({
-            id: req.body.id,
-            name: req.body.name,
-            description: req.body.description,
-            tracks: req.body.tracks || [],
-        });
-        if (req.isAPICall) {
-            res.json(project.toJSON());
+        catch (e) {
+            if (e && e.code === 11000) {
+                throw new errors_1.ConflictError("Project Already exists");
+            }
+            else {
+                throw e;
+            }
         }
-        else {
-            req.flash("success", { msg: `Success! Created Project ${req.body.id}` });
-            res.redirect("/cms/projects");
-        }
-    }
-    catch (e) {
-        if (e && e.code === 11000) {
-            throw new errors_1.ConflictError("Project Already exists");
-        }
-        else {
-            throw e;
-        }
-    }
-});
+    })
+]);
 exports.getEdit = asyncHandler_1.asyncHandler(async (req, res) => {
     const project = await Project_1.default.findOne({
         id: req.params.id
@@ -114,34 +118,39 @@ exports.getEdit = asyncHandler_1.asyncHandler(async (req, res) => {
         project,
     });
 });
-exports.postEdit = asyncHandler_1.asyncHandler(async (req, res) => {
-    req.assert("id", "ID cannot be blank").notEmpty();
-    req.assert("name", "Name cannot be blank").notEmpty();
-    const errors = req.validationErrors();
-    if (errors) {
+exports.postEdit = connect_compose_1.default([
+    (req, res, next) => { req.fileName = "icon"; next(); },
+    upload.single("file"),
+    asyncHandler_1.asyncHandler(async (req, res) => {
+        req.assert("id", "ID cannot be blank").notEmpty();
+        req.assert("name", "Name cannot be blank").notEmpty();
+        const errors = req.validationErrors();
+        if (errors) {
+            if (req.isAPICall) {
+                throw new errors_1.BadRequestError(errors[0].msg);
+            }
+            else {
+                req.flash("errors", errors);
+                return res.redirect("/cms/projects/create");
+            }
+        }
+        const project = await Project_1.default.findOneAndUpdate({
+            id: req.params.id,
+        }, {
+            name: req.body.name,
+            description: req.body.description,
+            tracks: req.body.tracks || [],
+            image: (!!req.file) ? `/${req.params.id}/image` : null,
+        });
         if (req.isAPICall) {
-            throw new errors_1.BadRequestError(errors[0].msg);
+            res.json(project.toJSON());
         }
         else {
-            req.flash("errors", errors);
-            return res.redirect("/cms/projects/create");
+            req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
+            res.redirect(`/cms/projects/${req.params.id}`);
         }
-    }
-    const project = await Project_1.default.findOneAndUpdate({
-        id: req.params.id,
-    }, {
-        name: req.body.name,
-        description: req.body.description,
-        tracks: req.body.tracks || [],
-    });
-    if (req.isAPICall) {
-        res.json(project.toJSON());
-    }
-    else {
-        req.flash("success", { msg: `Success! Edited Project ${req.params.id}` });
-        res.redirect(`/cms/projects/${req.params.id}`);
-    }
-});
+    })
+]);
 exports.getCMSProject = asyncHandler_1.asyncHandler(async (req, res) => {
     const project = await retrieveProject(req.params.id);
     await project.populateReleases();
@@ -271,6 +280,14 @@ exports.downloadRelease = asyncHandler_1.asyncHandler(async (req, res) => {
     const release = await Release_1.default.findById(req.params.releaseId);
     res.setHeader("Content-disposition", `attachment; filename=${release.fileName}`);
     res.setHeader("Content-type", release.mimetype);
-    fs_extra_1.default.createReadStream(release.path).pipe(res);
+    const stream = fs_extra_1.default.createReadStream(release.path);
+    stream.on("error", (err) => next(err));
+    stream.pipe(res);
+});
+exports.getProjectImage = asyncHandler_1.asyncHandler(async (req, res, next) => {
+    const imagePath = path_1.default.join(directory_1.STORAGE_DIRECTORY, `upload/${req.params.id}/icon`);
+    const stream = fs_extra_1.default.createReadStream(imagePath);
+    stream.on("error", (err) => next(err));
+    stream.pipe(res);
 });
 //# sourceMappingURL=project.js.map
