@@ -11,6 +11,7 @@ const schema = new mongoose_1.default.Schema({
     name: String,
     description: String,
     image: String,
+    iosBundleId: String,
     tracks: [String],
 }, { timestamps: true });
 /**

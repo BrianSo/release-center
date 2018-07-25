@@ -1,6 +1,7 @@
 extends ../layout
 
 block content
+    - const downloadLink = (release) => `/${release.projectId}/download/${release._id}${release.isIOS ? '/download.plist' : ''}`;
     .page-header(style='display: flex; align-items: center')
         h3=project.name
         .flex-space
@@ -43,7 +44,7 @@ block content
                                 span.version
                                     | #{latest.name} (Latest)
                                 span.date=latest.createdAt.toLocaleString()
-                                a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                                a.btn.btn-link(href=downloadLink(latest))
                                     | Download
                                 a.btn.btn-link(href=`/cms/projects/${project.id}/releases/${latest._id}/edit`)
                                     | Edit
@@ -59,7 +60,7 @@ block content
                                             span.version
                                                 =release.name
                                             span.date=release.createdAt.toLocaleString()
-                                            a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
+                                            a.btn.btn-link(href=downloadLink(release))
                                                 | Download
                                             a.btn.btn-link(href=`/cms/projects/${project.id}/releases/${release._id}/edit`)
                                                 | Edit

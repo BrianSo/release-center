@@ -55,8 +55,9 @@ docker stack deploy -c docker-compose.stack.yml
 ### Roadmap
 
 1. Create Project and Release <-- Finish
-2. Release Expiration
-3. Release Password Protection
-4. Public API for release version checking, release download **<-- Current**
-5. Customizable Project Page (Online Pug Editor), Templates
-6. Email/Telegram Release Notification
+2. Public API for release version checking, release download <-- Finish
+3. Support iOS plist <-- Finish
+4. Release Expiration **<-- Current**
+5. Release Password Protection
+6. Customizable Project Page (Online Pug Editor), Templates
+7. Email/Telegram Release Notification

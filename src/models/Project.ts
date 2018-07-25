@@ -13,6 +13,7 @@ export type ProjectModel = mongoose.Document & {
   releases: {
     [key: string]: ReleaseModel[],
   },
+  iosBundleId: string,
 
   gravatar: (size: number) => string,
   populateReleases: () => Promise<ProjectModel>
@@ -24,6 +25,7 @@ const schema = new mongoose.Schema({
   name: String,
   description: String,
   image: String,
+  iosBundleId: String,
 
   tracks: [String],
 }, { timestamps: true });

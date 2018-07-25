@@ -60,6 +60,7 @@ authorizedApiRouter.patch("/projects/:id/releases/:releaseId", apiAuthorization.
 app.get("/:id", projectController.getProject);
 app.get("/:id/image", projectController.getProjectImage);
 app.get("/:id/download/:releaseId", projectController.downloadRelease);
+app.get("/:id/download/:releaseId/download.plist", projectController.releaseIOSPlist);
 //
 // app.get("/logout", userController.logout);
 // app.get("/forgot", userController.getForgot);

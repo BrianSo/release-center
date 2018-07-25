@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs-extra";
 import { STORAGE_DIRECTORY } from "../config/directory";
 import { BadRequestError, ConflictError, NotFoundError, UnauthorizedError } from "../util/errors";
+import plist from "plist";
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file, cb) {
@@ -148,6 +149,7 @@ export let postEdit = compose([
       name: req.body.name,
       description: req.body.description,
       tracks: req.body.tracks || [],
+      iosBundleId: req.body.iosBundleId,
       image: (!!req.file) ? `/${req.params.id}/image` : null,
     });
 
@@ -241,6 +243,13 @@ export let postCreateRelease = compose([
       }
     }
 
+    let isIOS = false;
+    if (req.file) {
+      if (/\.ipa$/.test(req.file.originalname)) {
+        isIOS = true;
+      }
+    }
+
     const release = await Release.create({
       projectId: req.params.id,
       name: req.body.name,
@@ -249,6 +258,7 @@ export let postCreateRelease = compose([
       fileName: req.file && req.file.originalname,
       mimetype: req.file && req.file.mimetype,
       path: req.file && req.file.path,
+      isIOS: isIOS,
     });
 
     if (req.isAPICall) {
@@ -309,11 +319,49 @@ export let deleteRelease = asyncHandler(async (req: Request, res: Response) => {
 export let downloadRelease = asyncHandler(async (req: Request, res: Response) => {
   const release = await Release.findById(req.params.releaseId);
 
-  res.setHeader("Content-disposition", `attachment; filename=${release.fileName}`);
-  res.setHeader("Content-type", release.mimetype);
+  const stat = await fs.stat(release.path);
+
+  res.setHeader("Content-Disposition", `attachment; filename=${release.fileName}`);
+  res.setHeader("Content-Type", release.mimetype);
+  res.setHeader("Content-Length", stat.size);
   const stream = fs.createReadStream(release.path);
   stream.on("error", (err) => next(err));
   stream.pipe(res);
+});
+
+export let releaseIOSPlist = asyncHandler(async (req: Request, res: Response) => {
+  const release = await Release.findById(req.params.releaseId);
+  const project = await Project.findOne({ id: release.projectId });
+  res.setHeader("Content-Disposition", "filename=download.plist");
+  res.setHeader("Content-Type", "application/x-plist");
+
+  const plistJson = {
+    items: [
+      {
+        assets: [
+          {
+            kind: "software-package",
+            url: `${process.env.SERVER_ADDRESS}/${project.id}/download/${release.id}`,
+          }
+        ],
+        metadata: {
+          "bundle-identifier": project.iosBundleId,
+          "bundle-version": release.name,
+          "kind": "software",
+          "title": project.name
+        },
+      }
+    ]
+  };
+  if (project.image) {
+    plistJson.items[0].assets.push({
+      kind: "display-image",
+      "need-shine": false,
+      url: `${process.env.SERVER_ADDRESS}/${project.id}/image`,
+    });
+  }
+
+  res.send(plist.build(plistJson));
 });
 
 export let getProjectImage = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {

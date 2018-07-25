@@ -18,6 +18,10 @@ block content
             .col-sm-7
                 input.form-control(value=project.description, name='description', id='description', placeholder='Description')
         .form-group
+            label.col-sm-3.control-label(for='iosBundleId') iOS Bundle ID
+            .col-sm-7
+                input.form-control(value=project.iosBundleId, name='iosBundleId', id='iosBundleId', placeholder='iOS Bundle ID')
+        .form-group
             label.col-sm-3.control-label(for='file') Icon
             .col-sm-7
                 input.form-control(type='file', name='file', id='file', placeholder='Icon')

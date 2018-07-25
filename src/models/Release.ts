@@ -8,6 +8,7 @@ export type ReleaseModel = mongoose.Document & {
   fileName: string,
   mimetype: string,
   path: string,
+  isIOS: boolean,
 };
 
 
@@ -19,6 +20,7 @@ const schema = new mongoose.Schema({
   fileName: String,
   mimetype: String,
   path: String,
+  isIOS: Boolean,
 }, { timestamps: true });
 
 schema.options.toJSON = {

@@ -12,6 +12,7 @@ const path_1 = __importDefault(require("path"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
 const directory_1 = require("../config/directory");
 const errors_1 = require("../util/errors");
+const plist_1 = __importDefault(require("plist"));
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         const result = path_1.default.join(directory_1.STORAGE_DIRECTORY, `upload/${req.params.id}`);
@@ -140,6 +141,7 @@ exports.postEdit = connect_compose_1.default([
             name: req.body.name,
             description: req.body.description,
             tracks: req.body.tracks || [],
+            iosBundleId: req.body.iosBundleId,
             image: (!!req.file) ? `/${req.params.id}/image` : null,
         });
         if (req.isAPICall) {
@@ -218,6 +220,12 @@ exports.postCreateRelease = connect_compose_1.default([
                 return res.redirect(`/cms/projects/${req.params.id}/releases/create`);
             }
         }
+        let isIOS = false;
+        if (req.file) {
+            if (/\.ipa$/.test(req.file.originalname)) {
+                isIOS = true;
+            }
+        }
         const release = await Release_1.default.create({
             projectId: req.params.id,
             name: req.body.name,
@@ -226,6 +234,7 @@ exports.postCreateRelease = connect_compose_1.default([
             fileName: req.file && req.file.originalname,
             mimetype: req.file && req.file.mimetype,
             path: req.file && req.file.path,
+            isIOS: isIOS,
         });
         if (req.isAPICall) {
             res.json(release.toJSON());
@@ -278,11 +287,45 @@ exports.deleteRelease = asyncHandler_1.asyncHandler(async (req, res) => {
 });
 exports.downloadRelease = asyncHandler_1.asyncHandler(async (req, res) => {
     const release = await Release_1.default.findById(req.params.releaseId);
-    res.setHeader("Content-disposition", `attachment; filename=${release.fileName}`);
-    res.setHeader("Content-type", release.mimetype);
+    const stat = await fs_extra_1.default.stat(release.path);
+    res.setHeader("Content-Disposition", `attachment; filename=${release.fileName}`);
+    res.setHeader("Content-Type", release.mimetype);
+    res.setHeader("Content-Length", stat.size);
     const stream = fs_extra_1.default.createReadStream(release.path);
     stream.on("error", (err) => next(err));
     stream.pipe(res);
+});
+exports.releaseIOSPlist = asyncHandler_1.asyncHandler(async (req, res) => {
+    const release = await Release_1.default.findById(req.params.releaseId);
+    const project = await Project_1.default.findOne({ id: release.projectId });
+    res.setHeader("Content-Disposition", "filename=download.plist");
+    res.setHeader("Content-Type", "application/x-plist");
+    const plistJson = {
+        items: [
+            {
+                assets: [
+                    {
+                        kind: "software-package",
+                        url: `${process.env.SERVER_ADDRESS}/${project.id}/download/${release.id}`,
+                    }
+                ],
+                metadata: {
+                    "bundle-identifier": project.iosBundleId,
+                    "bundle-version": release.name,
+                    "kind": "software",
+                    "title": project.name
+                },
+            }
+        ]
+    };
+    if (project.image) {
+        plistJson.items[0].assets.push({
+            kind: "display-image",
+            "need-shine": false,
+            url: `${process.env.SERVER_ADDRESS}/${project.id}/image`,
+        });
+    }
+    res.send(plist_1.default.build(plistJson));
 });
 exports.getProjectImage = asyncHandler_1.asyncHandler(async (req, res, next) => {
     const imagePath = path_1.default.join(directory_1.STORAGE_DIRECTORY, `upload/${req.params.id}/icon`);

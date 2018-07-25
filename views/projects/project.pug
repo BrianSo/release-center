@@ -1,6 +1,7 @@
 extends ./layout
 
 block content
+  - const downloadLink = (release) => `/${release.projectId}/download/${release._id}${release.isIOS ? '/download.plist' : ''}`;
   .page-header(style='display: flex; justify-content: space-between; align-items: center')
     h3 #{project.name} Release
   .project-detail
@@ -35,7 +36,7 @@ block content
               span(data-toggle='tooltip' data-placement='top' title=latest.note)
                 span.version #{latest.name} (Latest)
                 span.date=latest.createdAt.toLocaleString()
-                a.btn.btn-link(href=`/${project.id}/download/${latest._id}`)
+                a.btn.btn-link(href=downloadLink(latest))
                   | Download
                 button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
                   | Old Versions
@@ -49,7 +50,7 @@ block content
                       span(data-toggle='tooltip' data-placement='top' title=release.note)
                         span.version=release.name
                         span.date=release.createdAt.toLocaleString()
-                        a.btn.btn-link(href=`/${project.id}/download/${release._id}`)
+                        a.btn.btn-link(href=downloadLink(release))
                           | Download
   script.
     document.addEventListener("DOMContentLoaded", function () {

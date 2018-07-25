@@ -12,6 +12,7 @@ const schema = new mongoose_1.default.Schema({
     fileName: String,
     mimetype: String,
     path: String,
+    isIOS: Boolean,
 }, { timestamps: true });
 schema.options.toJSON = {
     transform: function (doc, ret, options) {
