@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-    - const downloadLink = (release) => `/${release.projectId}/download/${release._id}${release.isIOS ? '/download.plist' : ''}`;
+    - const downloadLink = (release) => release.isIOS ? `itms-services://?action=download-manifest&url=${process.env.SERVER_ADDRESS}/${release.projectId}/download/${release._id}/download.plist` : `/${release.projectId}/download/${release._id}`;
     .page-header(style='display: flex; align-items: center')
         h3=project.name
         .flex-space
