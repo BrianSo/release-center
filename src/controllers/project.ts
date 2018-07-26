@@ -93,6 +93,7 @@ export let postCreate = compose([
         id: req.body.id,
         name: req.body.name,
         description: req.body.description,
+        iosBundleId: req.body.iosBundleId,
         tracks: req.body.tracks || [],
       });
 
@@ -297,6 +298,7 @@ export let postEditRelease = compose([
       updates.fileName = req.file.originalname;
       updates.mimetype = req.file.mimetype;
       updates.path = req.file.path;
+      updates.isIOS = /\.ipa$/.test(req.file.originalname);
     }
 
     const release = await Release.findByIdAndUpdate(req.params.releaseId, updates);

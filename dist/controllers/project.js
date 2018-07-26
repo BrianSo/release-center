@@ -89,6 +89,7 @@ exports.postCreate = connect_compose_1.default([
                 id: req.body.id,
                 name: req.body.name,
                 description: req.body.description,
+                iosBundleId: req.body.iosBundleId,
                 tracks: req.body.tracks || [],
             });
             if (req.isAPICall) {
@@ -269,6 +270,7 @@ exports.postEditRelease = connect_compose_1.default([
             updates.fileName = req.file.originalname;
             updates.mimetype = req.file.mimetype;
             updates.path = req.file.path;
+            updates.isIOS = /\.ipa$/.test(req.file.originalname);
         }
         const release = await Release_1.default.findByIdAndUpdate(req.params.releaseId, updates);
         if (req.isAPICall) {
