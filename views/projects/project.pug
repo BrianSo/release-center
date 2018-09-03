@@ -3,7 +3,7 @@ extends ./layout
 block content
   - const downloadLink = (release) => release.isIOS ? `itms-services://?action=download-manifest&url=${process.env.SERVER_ADDRESS}/${release.projectId}/download/${release._id}/download.plist` : `/${release.projectId}/download/${release._id}`;
   .page-header(style='display: flex; justify-content: space-between; align-items: center')
-    h3 #{project.name} Release
+    h3 #{project.name} 版本
   .project-detail
     img.icon(src=project.gravatar())
     .right-area
@@ -34,12 +34,12 @@ block content
               =track
             .release.latest
               span(data-toggle='tooltip' data-placement='top' title=latest.note)
-                span.version #{latest.name} (Latest)
+                span.version #{latest.name} (最新)
                 span.date=latest.createdAt.toLocaleString()
                 a.btn.btn-link(href=downloadLink(latest))
-                  | Download
+                  | 下載
                 button.btn.btn-link(type='button', data-toggle='collapse', data-target=`#collapse-${track}`, aria-expanded='true', aria-controls=`collapse-${track}`)
-                  | Old Versions
+                  | 版本紀錄
 
           .collapse(id=`collapse-${track}`, aria-labelledby=`heading-${track}`, data-parent='#releaseAccordion')
             .card-body
@@ -51,7 +51,7 @@ block content
                         span.version=release.name
                         span.date=release.createdAt.toLocaleString()
                         a.btn.btn-link(href=downloadLink(release))
-                          | Download
+                          | 下載
   script.
     document.addEventListener("DOMContentLoaded", function () {
       $('[data-toggle="tooltip"]').tooltip()
