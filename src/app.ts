@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 import compression from "compression";  // compresses requests
 import session from "express-session";
 import bodyParser from "body-parser";
@@ -14,6 +14,7 @@ import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
 import router from "./router";
 import {default as User, UserModel} from "./models/User";
 import morgan = require("morgan");
+import cors from 'cors';
 
 const MongoStore = mongo(session);
 
@@ -38,6 +39,12 @@ app.set("port", process.env.PORT || 3000);
 app.set("views", path.join(__dirname, "../views"));
 app.set("view engine", "pug");
 app.use(process.env.NODE_ENV === "production" ? morgan("combined") : morgan("dev"));
+app.use(cors((req: Request, cb: Function) => {
+  if (req.originalUrl.indexOf('/api') === 0) {
+    return cb(null, { origin: true });  
+  }
+  return cb(null, { methods: ['GET'], origin: true });
+}));
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -6,13 +6,13 @@ import { UnauthorizedError } from "../util/errors";
 export let isAuthorized = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   const key = req.headers.authorization;
   if (!key) {
-    throw new UnauthorizedError("Unauthorized");
+    throw new UnauthorizedError("Unauthorized: No Key");
   }
   const apiKey = await APIKey.findOne({
     key,
   });
   if (!apiKey) {
-    throw new UnauthorizedError("Unauthorized");
+    throw new UnauthorizedError("Unauthorized: Incorrect Key");
   }
   req.apiKey = apiKey;
   next();

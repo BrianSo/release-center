@@ -9,13 +9,13 @@ const errors_1 = require("../util/errors");
 exports.isAuthorized = asyncHandler_1.asyncHandler(async (req, res, next) => {
     const key = req.headers.authorization;
     if (!key) {
-        throw new errors_1.UnauthorizedError("Unauthorized");
+        throw new errors_1.UnauthorizedError("Unauthorized: No Key");
     }
     const apiKey = await APIKey_1.default.findOne({
         key,
     });
     if (!apiKey) {
-        throw new errors_1.UnauthorizedError("Unauthorized");
+        throw new errors_1.UnauthorizedError("Unauthorized: Incorrect Key");
     }
     req.apiKey = apiKey;
     next();

@@ -1,6 +1,6 @@
 {
   "name": "release-center",
-  "version": "0.11.0-beta",
+  "version": "0.13.0-beta",
   "description": "Release your app/binary in an organized way",
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "compression": "^1.7.1",
     "connect-compose": "^0.0.1",
     "connect-mongo": "^2.0.0",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.2",

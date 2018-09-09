@@ -12,7 +12,7 @@ import plist from "plist";
 
 const storage = multer.diskStorage({
   destination: function (req: Request, file, cb) {
-    const result = path.join(STORAGE_DIRECTORY, `upload/${req.params.id}`);
+    const result = path.join(STORAGE_DIRECTORY, `upload/${req.params.id || req.body.id}`);
     fs.ensureDir(result, err => {
       if (err) {
         cb(err, undefined);
@@ -42,16 +42,20 @@ const retrieveProject = async (projectId: string): Promise<ProjectModel> => {
  * GET /cms/projects
  * Projects home page
  */
-export let index = asyncHandler(async (req: Request, res: Response) => {
+export let getAllProjects = asyncHandler(async (req: Request, res: Response) => {
   const projects = await Project.find()
     .populate("main")
     .populate("android")
     .populate("ios");
 
-  res.render("cms/projects/projects", {
-    title: "Projects",
-    projects: projects,
-  });
+  if (req.isAPICall) {
+    res.json(projects.map((project: ProjectModel) => project.toJSON()));
+  } else {
+    res.render("cms/projects/projects", {
+      title: "Projects",
+      projects: projects,
+    });
+  }
 });
 
 /**
@@ -95,6 +99,7 @@ export let postCreate = compose([
         description: req.body.description,
         iosBundleId: req.body.iosBundleId,
         tracks: req.body.tracks || [],
+        image: (!!req.file) ? `/${req.body.id}/image` : null,
       });
 
       if (req.isAPICall) {
@@ -144,15 +149,18 @@ export let postEdit = compose([
       }
     }
 
-    const project = await Project.findOneAndUpdate({
-      id: req.params.id,
-    }, {
+    const update : any = {
       name: req.body.name,
       description: req.body.description,
       tracks: req.body.tracks || [],
       iosBundleId: req.body.iosBundleId,
-      image: (!!req.file) ? `/${req.params.id}/image` : null,
-    });
+    };
+    if (req.file) {
+      update.image = `/${req.params.id}/image`;
+    }
+    const project = await Project.findOneAndUpdate({
+      id: req.params.id,
+    }, update);
 
     if (req.isAPICall) {
       res.json(project.toJSON());

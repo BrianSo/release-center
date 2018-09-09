@@ -15,7 +15,7 @@ const errors_1 = require("../util/errors");
 const plist_1 = __importDefault(require("plist"));
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
-        const result = path_1.default.join(directory_1.STORAGE_DIRECTORY, `upload/${req.params.id}`);
+        const result = path_1.default.join(directory_1.STORAGE_DIRECTORY, `upload/${req.params.id || req.body.id}`);
         fs_extra_1.default.ensureDir(result, err => {
             if (err) {
                 cb(err, undefined);
@@ -43,15 +43,20 @@ const retrieveProject = async (projectId) => {
  * GET /cms/projects
  * Projects home page
  */
-exports.index = asyncHandler_1.asyncHandler(async (req, res) => {
+exports.getAllProjects = asyncHandler_1.asyncHandler(async (req, res) => {
     const projects = await Project_1.default.find()
         .populate("main")
         .populate("android")
         .populate("ios");
-    res.render("cms/projects/projects", {
-        title: "Projects",
-        projects: projects,
-    });
+    if (req.isAPICall) {
+        res.json(projects.map((project) => project.toJSON()));
+    }
+    else {
+        res.render("cms/projects/projects", {
+            title: "Projects",
+            projects: projects,
+        });
+    }
 });
 /**
  * GET /cms/projects/create
@@ -91,6 +96,7 @@ exports.postCreate = connect_compose_1.default([
                 description: req.body.description,
                 iosBundleId: req.body.iosBundleId,
                 tracks: req.body.tracks || [],
+                image: (!!req.file) ? `/${req.body.id}/image` : null,
             });
             if (req.isAPICall) {
                 res.json(project.toJSON());
@@ -136,15 +142,18 @@ exports.postEdit = connect_compose_1.default([
                 return res.redirect("/cms/projects/create");
             }
         }
-        const project = await Project_1.default.findOneAndUpdate({
-            id: req.params.id,
-        }, {
+        const update = {
             name: req.body.name,
             description: req.body.description,
             tracks: req.body.tracks || [],
             iosBundleId: req.body.iosBundleId,
-            image: (!!req.file) ? `/${req.params.id}/image` : null,
-        });
+        };
+        if (req.file) {
+            update.image = `/${req.params.id}/image`;
+        }
+        const project = await Project_1.default.findOneAndUpdate({
+            id: req.params.id,
+        }, update);
         if (req.isAPICall) {
             res.json(project.toJSON());
         }

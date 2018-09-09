@@ -34,7 +34,7 @@ app.use("/cms/api_keys", passportConfig.isAuthenticated);
 }
 const projectCMS = express_1.Router();
 app.use("/cms/projects", passportConfig.isAuthenticated, projectCMS);
-projectCMS.get("/", projectController.index);
+projectCMS.get("/", projectController.getAllProjects);
 projectCMS.get("/create", projectController.getCreate);
 projectCMS.post("/create", projectController.postCreate);
 projectCMS.get("/:id", projectController.getCMSProject);
@@ -53,6 +53,7 @@ apiRouter.get("/projects/:id/releases/:releaseId/download", projectController.do
 // below require API Key
 const authorizedApiRouter = express_1.Router();
 apiRouter.use(apiAuthorization.isAuthorized, authorizedApiRouter);
+authorizedApiRouter.get("/projects", apiAuthorization.isAuthorizedForProject, projectController.getAllProjects);
 authorizedApiRouter.post("/projects", apiAuthorization.isAuthorizedForProject, projectController.postCreate);
 authorizedApiRouter.patch("/projects/:id", apiAuthorization.isAuthorizedForProject, projectController.postEdit);
 authorizedApiRouter.post("/projects/:id/releases", apiAuthorization.isAuthorizedForProject, projectController.postCreateRelease);
